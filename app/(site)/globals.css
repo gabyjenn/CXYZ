@@ -582,3 +582,28 @@ body { margin: 0; }
   background-origin: border-box;
   background-clip: border-box;
 }
+
+/* ── Landing animation ── */
+.intro {
+  --intro-step: 0.2s;         /* per letter: 4 × 0.375s = 1.5s */
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  pointer-events: none;
+  animation: intro-out 0.7s linear calc(4 * var(--intro-step)) forwards;
+}
+.intro__letter {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50vw;
+  background-color: #D8D8D8;
+  -webkit-mask: var(--src) center / 100% auto no-repeat;
+          mask: var(--src) center / 100% auto no-repeat;
+  opacity: 0;
+  animation: intro-letter var(--intro-step) step-end calc(var(--i) * var(--intro-step));
+}
+@keyframes intro-letter { from, to { opacity: 1; } }
+@keyframes intro-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .intro { display: none; } }

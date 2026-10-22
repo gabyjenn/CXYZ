@@ -7,6 +7,7 @@ import { Carousel } from '@/components/Carousel'
 import { InformationModule } from '@/components/Information'
 import { Footer } from '@/components/Footer'
 import { LetterHover } from '@/components/LetterHover'
+import { Intro } from '@/components/Intro'
 
 /**
  * Studio value is in SECONDS (default 30). 0 = autoplay off.
@@ -36,6 +37,7 @@ export default async function Home() {
       </main>
       <Footer settings={settings} />
       <LetterHover />
+      <Intro />
     </ProjectProvider>
   )
 }

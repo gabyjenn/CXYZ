@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { MediaItem, Settings } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
-import { Shot, TopRow } from './Shared'
+import { Shot, TopRow, setThemeColor, siteBg } from './Shared'
 import { QuestionPop } from './QuestionPop'
 
 export function Home({ settings }: { settings: Settings }) {
@@ -19,6 +19,7 @@ export function Home({ settings }: { settings: Settings }) {
     const site = document.querySelector<HTMLElement>('.site')
     ;['--bg', '--fg', '--muted'].forEach((k) => site?.style.removeProperty(k))
     document.documentElement.style.background = ''
+    setThemeColor(siteBg()) // phone browser's top bar back to black
   }, [])
 
   // the project's first image (exactly as on its project page); falls back to its first video,

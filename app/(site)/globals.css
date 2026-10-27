@@ -55,7 +55,7 @@
 [data-theme='dark'] {
   --bg: #000;
   --fg: #fff;
-  --muted: rgba(255, 255, 255, 0.3);
+  --muted: rgba(255, 255, 255, 0.5);
 }
 [data-theme='light'] {
   --bg: #fff;
@@ -246,7 +246,7 @@ body { margin: 0; }
   --q-size: 30px;                       /* the circles */
   position: absolute;
   right: var(--pad-x);
-  bottom: 20px;                         /* same line as About */
+  bottom: 16px;                         /* same line as About */
   z-index: 2;
   width: calc(3 * var(--col) + 2 * var(--gap));
   display: grid;
@@ -278,6 +278,8 @@ body { margin: 0; }
   place-items: center;
   padding: 0;
 }
+/* closed: just the envelope, no circle (the × and → keep theirs when open) */
+.site .q:not(.is-open) .q__go { border-color: transparent; }
 .q__circle svg { display: block; }
 .site .q__input {
   width: 100%;
@@ -294,7 +296,6 @@ body { margin: 0; }
   row-gap: var(--row-gap);
   padding-top: 30px;         
   padding-bottom: var(--row-gap);
-  min-height:95svh;
   align-content: start;
 }
 .more__row {
@@ -303,6 +304,15 @@ body { margin: 0; }
   grid-template-columns: subgrid;
   align-items: start;
 }
+.about { display: flex; flex-direction: column; min-height: calc(100svh - (var(--lh) * var(--fs) + 30px)); }
+.foot {
+  margin-top: auto;
+  padding-top: var(--row-gap);
+  padding-bottom: var(--pad-x);      /* 20px from the bottom, like the side margins */
+  align-items: start;
+}
+.foot__copy  { grid-column: 1 / span 2; }
+.foot__links { grid-column: 3 / span 2; }
 .more__label { grid-column: 1; }
 .more__list { grid-column: 2 / span 3; }
 .more__content {
@@ -495,6 +505,10 @@ body { margin: 0; }
   /* question: full width when open; About steps aside meanwhile */
   .q { width: calc(100% - 2 * var(--pad-x));  bottom: 12px;  --q-size: 25px;  }
   .hero:has(.q.is-open) .jump { opacity: 0; pointer-events: none; }
+
+  .foot { row-gap: 10px; }
+  .foot__copy, .foot__links { grid-column: 1 / -1; }
+  
 }
 
 /* ─────────────────────────────────────────────────────────────

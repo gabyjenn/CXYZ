@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Project } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
-import { Shot, TopRow } from './Shared'
+import { Shot, TopRow, setThemeColor, siteBg } from './Shared'
 
 /** Thin horizontal arrow (← or →). */
 function HArrow({ dir }: { dir: 'left' | 'right' }) {
@@ -42,9 +42,11 @@ export function ProjectDetail({ project }: { project: Project }) {
     }
     Object.entries(vars).forEach(([k, v]) => site.style.setProperty(k, v))
     document.documentElement.style.background = bg
+    setThemeColor(bg) // phone browser's top bar
     return () => {
       Object.keys(vars).forEach((k) => site.style.removeProperty(k))
       document.documentElement.style.background = ''
+      setThemeColor(siteBg())
     }
   }, [project.background])
 

@@ -85,6 +85,7 @@ export function More({ information, news, log, settings }: Props) {
   const visible = byYear ? entries.filter((e) => e.year === activeYear) : entries
 
   return (
+    <div className="about">
     <section id="more" className="more grid" aria-label="Information">
       {cv.length > 0 && (
         <div className="more__row">
@@ -107,13 +108,6 @@ export function More({ information, news, log, settings }: Props) {
                 </button>
               </li>
             ))}
-            {settings.cvPdfUrl && (
-              <li className="more__download">
-                <a href={`${settings.cvPdfUrl}?dl=`} download>
-                  Download CV
-                </a>
-              </li>
-            )}
           </ul>
           {/* phones only: years as a row; the latest is selected by default, tap another to switch */}
           {years.length > 1 && (
@@ -198,5 +192,32 @@ export function More({ information, news, log, settings }: Props) {
         </div>
       )}
     </section>
+
+    {/* footer: © name year  ·  downloads (CV / PDF Portfolio) */}
+    <footer className="foot grid">
+      <p className="foot__copy">
+        © {settings.copyright ? `${settings.copyright} ` : ''}
+        {new Date().getFullYear()}
+      </p>
+      {(settings.cvPdfUrl || settings.portfolioPdfUrl) && (
+        <ul className="foot__links">
+          {settings.cvPdfUrl && (
+            <li>
+              <a href={`${settings.cvPdfUrl}?dl=`} download>
+                CV
+              </a>
+            </li>
+          )}
+          {settings.portfolioPdfUrl && (
+            <li>
+              <a href={`${settings.portfolioPdfUrl}?dl=`} download>
+                PDF Portfolio
+              </a>
+            </li>
+          )}
+        </ul>
+      )}
+    </footer>
+    </div>
   )
 }

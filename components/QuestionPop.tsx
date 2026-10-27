@@ -2,11 +2,11 @@
 
 /**
  * Question module on the home image, bottom-right.
- *  Closed: a small circle with a drawn Q.
- *  Open (click Q): spans cols 10–12 —
+ *  Closed: a small circle with an envelope.
+ *  Open (click it): spans cols 10–12 —
  *     question ……………………………… (×)
  *     ____________________________ (→)
- *  The Q circle becomes the submit arrow; × closes. Answers go to Google Sheets
+ *  The envelope circle becomes the submit arrow; × closes. Answers go to Google Sheets
  *  via /api/question (same as before).
  */
 import { useEffect, useRef, useState } from 'react'
@@ -84,7 +84,7 @@ export function QuestionPop({ questions, thanks = 'Thank you.' }: { questions: s
         {line}
       </label>
       <button type="button" className="q__circle q__close" aria-label="Close" tabIndex={open ? 0 : -1} onClick={() => setOpen(false)}>
-        <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden>
+        <svg width="12" height="12" viewBox="0 0 10 10" aria-hidden>
           <path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" strokeWidth="1" fill="none" />
         </svg>
       </button>
@@ -107,14 +107,20 @@ export function QuestionPop({ questions, thanks = 'Thank you.' }: { questions: s
         disabled={open && status === 'sending'}
       >
         {open ? (
-          <svg width="12" height="10" viewBox="0 0 12 10" aria-hidden>
+          <svg width="14" height="12" viewBox="0 0 12 10" aria-hidden>
             <path d="M0 5 H11 M7 1 L11 5 L7 9" stroke="currentColor" strokeWidth="1" fill="none" />
           </svg>
         ) : (
-          // drawn Q: a ring with a short tail
-          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
-            <circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" strokeWidth="1" fill="none" />
-            <path d="M7.5 7.5 L11.5 11.5" stroke="currentColor" strokeWidth="1" fill="none" />
+          // pencil
+          <svg width="21" height="21" viewBox="0 0 16 16" aria-hidden>
+            <path
+              d="M1.5 14.5 L3.1 10.4 L12.3 1.2 L14.8 3.7 L5.6 12.9 Z M3.1 10.4 L5.6 12.9 M10.2 3.4 L12.6 5.8"
+              stroke="currentColor"
+              strokeWidth="1"
+              fill="none"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
           </svg>
         )}
       </button>

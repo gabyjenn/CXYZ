@@ -2,6 +2,7 @@
 
 /** Small pieces used on more than one page. */
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import type { MediaItem } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
 import { MediaView, aspectOf } from './Media'
@@ -9,9 +10,11 @@ import { MediaView, aspectOf } from './Media'
 /** Row 1: "CXYZ" (home link) + "World", which opens/closes Picture World. On phones: CXYZ left, World right. */
 export function TopRow() {
   const { world, setWorld } = useProjects()
+  const onHome = usePathname() === '/'
   return (
     <div className="side__row top-row">
-      <Link href="/" className="side__label logo" aria-current={!world} onClick={() => setWorld(false)}>
+      {/* red on the home page only (white on project pages and in Picture World) */}
+      <Link href="/" className="side__label logo" aria-current={onHome && !world} onClick={() => setWorld(false)}>
         CXYZ
       </Link>
       <div className="side__content">
@@ -21,6 +24,26 @@ export function TopRow() {
       </div>
     </div>
   )
+}
+
+/**
+ * The colour phone browsers use for their top bar (Safari tints it to match the page).
+ * It doesn't follow page changes on its own, so pages set it explicitly.
+ */
+export function setThemeColor(color: string) {
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    document.head.appendChild(meta)
+  }
+  meta.content = color
+}
+
+/** The site's own background colour (black in dark mode), ignoring any project colour. */
+export function siteBg() {
+  const site = document.querySelector<HTMLElement>('.site')
+  return (site && getComputedStyle(site).getPropertyValue('--bg').trim()) || '#000'
 }
 
 /** Thin 1px arrow. */

@@ -21,9 +21,8 @@ import { TopRow } from './Shared'
 const PAD = 20 // keep floating images this far from the screen edges…
 const PAD_TOP = 80 // …below the CXYZ row…
 const PAD_BOTTOM = 20 // …and above Exit
-const MAX_FLOATS = 6
-const MIN_W = 200
-const MAX_W = 600
+const floatRules = () =>
+  window.innerWidth > 768 ? { max: 3, minW: 360, maxW: 720 } : { max: 6, minW: 200, maxW: 800 }
 const MAX_ROLL_S = 2 // longest roll, like the old pool balls
 
 type Float = { key: string; image: SanityImage; x: number; y: number; w: number; h: number }
@@ -98,7 +97,8 @@ function layoutFloats(images: SanityImage[], W: number, H: number, ball: Box): F
   const maxH = H - PAD_TOP - PAD_BOTTOM
   for (const [k, image] of images.entries()) {
     const ar = image.dimensions?.aspectRatio ?? 1.5
-    let w = Math.min(rand(MIN_W, MAX_W), W - 2 * PAD, maxH * ar)
+    const { minW, maxW } = floatRules()
+    let w = Math.min(rand(minW, maxW), W - 2 * PAD, maxH * ar)
     let spot: Float | null = null
     while (!spot) {
       const h = w / ar
@@ -106,8 +106,8 @@ function layoutFloats(images: SanityImage[], W: number, H: number, ball: Box): F
         const f = { key: `${k}-${image.asset?._ref}`, image, w, h, x: rand(PAD, W - PAD - w), y: rand(PAD_TOP, PAD_TOP + maxH - h) }
         if (!taken.some((o) => hits(f, o))) spot = f
       }
-      if (spot || w <= MIN_W) break
-      w = Math.max(MIN_W, w * 0.85) // no room: try a bit smaller
+      if (spot || w <= minW) break
+      w = Math.max(minW, w * 0.85) // no room: try a bit smaller
     }
     if (spot) {
       placed.push(spot)
@@ -168,7 +168,7 @@ function World() {
         id: (s?.id ?? 0) + 1,
         entry: e,
         bg: entry.image,
-        floats: layoutFloats(others.slice(0, MAX_FLOATS), window.innerWidth, window.innerHeight, ballBox()),
+        floats: layoutFloats(others.slice(0, floatRules().max), window.innerWidth, window.innerHeight, ballBox()),
       }))
       setActiveIndex(entry.project)
     },

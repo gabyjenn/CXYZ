@@ -41,7 +41,7 @@ function toEmbed(url: string) {
 export function MediaView({ item, eager }: { item: MediaItem; eager?: boolean }) {
   switch (item._type) {
     case 'imageItem':
-      return <SanityImg image={item.image} sizes="(max-width: 768px) 100vw, 65vw" eager={eager} />
+      return <SanityImg image={item.image} sizes="(max-width: 768px) 100vw, 75vw" eager={eager} />
     case 'videoItem':
       if (item.fileUrl)
         return (
@@ -57,6 +57,6 @@ export function MediaView({ item, eager }: { item: MediaItem; eager?: boolean })
       if (item.url) return <iframe src={toEmbed(item.url)} allow="autoplay; fullscreen" title={item.caption || 'Video'} />
       return null
     case 'pdfItem':
-      return item.fileUrl ? <iframe src={`${item.fileUrl}#view=FitH`} title={item.caption || 'PDF'} /> : null
+      return null // PDFs are download links (see Shot in Shared.tsx)
   }
 }

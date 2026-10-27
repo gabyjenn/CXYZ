@@ -8,6 +8,7 @@ export const project = defineType({
     { title: 'Manual order', name: 'orderAsc', by: [{ field: 'order', direction: 'asc' }] },
     { title: 'Year, newest', name: 'yearDesc', by: [{ field: 'year', direction: 'desc' }] },
   ],
+  fieldsets: [{ name: 'world', title: 'Picture World', options: { collapsible: true, collapsed: true, columns: 2 } }],
   fields: [
     defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
     defineField({
@@ -26,14 +27,14 @@ export const project = defineType({
       name: 'order',
       title: 'Order',
       type: 'number',
-      description: 'Lower numbers show first in the Projects menu and carousel.',
+      description: 'Lower numbers show first in the Projects list.',
     }),
     defineField({
       name: 'media',
       title: 'Media',
       type: 'array',
       description:
-        'Images, videos and PDFs, in slideshow order. The first image becomes the project thumbnail.',
+        'Images, videos and PDFs, in order. The first image is shown on the home page.',
       of: [
         defineArrayMember({ type: 'imageItem' }),
         defineArrayMember({ type: 'videoItem' }),
@@ -42,10 +43,33 @@ export const project = defineType({
       validation: (r) => r.min(1).warning('Add at least one media item'),
     }),
     defineField({
+      name: 'backgroundColor',
+      title: 'Project page background (optional)',
+      type: 'color',
+      description: 'Background of this project’s page. Text turns black or white automatically to stay readable. Leave empty for the site default.',
+      options: { disableAlpha: true },
+    }),
+    defineField({
+      name: 'worldX',
+      title: 'Picture World position: across (0–100)',
+      type: 'number',
+      fieldset: 'world',
+      description: '0 = left edge, 100 = right edge. Leave both empty to place it automatically.',
+      validation: (r) => r.min(0).max(100),
+    }),
+    defineField({
+      name: 'worldY',
+      title: 'Picture World position: down (0–100)',
+      type: 'number',
+      fieldset: 'world',
+      description: '0 = top, 100 = bottom.',
+      validation: (r) => r.min(0).max(100),
+    }),
+    defineField({
       name: 'thumbnailOverride',
       title: 'Thumbnail override (optional)',
       type: 'image',
-      description: 'Leave empty to use the first image automatically.',
+      description: 'Leave empty to use the first image automatically (home page image).',
     }),
   ],
   preview: {

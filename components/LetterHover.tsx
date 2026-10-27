@@ -1,13 +1,5 @@
 'use client'
 
-/**
- * Hovering any C, X, Y or Z in the site's text plays that letter's
- * dotted-line animation across the whole viewport.
- *
- * No markup changes: on mouse move we ask the browser which character is
- * under the pointer (caretPositionFromPoint), check the pointer is really
- * on that character's box, and fire once per character entered.
- */
 import { useEffect } from 'react'
 import { useProjects, TRANSITION_MS } from './ProjectContext'
 import { LetterTransition } from './LetterTransition'

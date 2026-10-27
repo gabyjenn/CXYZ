@@ -21,6 +21,9 @@ export const PROJECTS_QUERY = defineQuery(`
     titleZh,
     year,
     "slug": slug.current,
+    "background": backgroundColor.hex,
+    worldX,
+    worldY,
     // First image in media becomes the thumbnail unless an override is set
     "thumbnail": coalesce(thumbnailOverride, media[_type == "imageItem"][0].image),
     "thumbnailAr": coalesce(
@@ -51,7 +54,8 @@ export const SETTINGS_QUERY = defineQuery(`
   *[_id == "siteSettings"][0]{
     siteTitle, theme, carouselInterval, copyright, email, instagram, substack,
     "portfolioPdfUrl": portfolioPdf.asset->url,
-    question,    
+    "cvPdfUrl": cvPdf.asset->url,
+    // list of questions; falls back to the old single question field
     "questions": select(count(questions[defined(@) && @ != ""]) > 0 => questions[defined(@) && @ != ""], defined(question) => [question], []),
     questionThanks
   }

@@ -6,6 +6,7 @@ import { visionTool } from '@sanity/vision'
 import { apiVersion, dataset, projectId } from './sanity/env'
 import { schemaTypes, singletonTypes } from './sanity/schemaTypes'
 import { structure } from './sanity/structure'
+import { colorInput } from '@sanity/color-input'
 
 export default defineConfig({
   basePath: '/studio',
@@ -24,5 +25,5 @@ export default defineConfig({
         ? input.filter(({ action }) => action && ['publish', 'discardChanges', 'restore'].includes(action))
         : input,
   },
-  plugins: [structureTool({ structure }), visionTool({ defaultApiVersion: apiVersion })],
+  plugins: [structureTool({ structure }), visionTool({ defaultApiVersion: apiVersion }), colorInput()],
 })

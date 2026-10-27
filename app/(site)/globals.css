@@ -34,38 +34,30 @@
 
   --bg: #fff;
   --fg: #000;
-  --dim: 0.4;              /* unselected / inactive: 30–50% */
-  --rule: 1px solid transparent;
-  --dot-gap: 5px;          /* dot every 4px = 1px dot + 3px gap (CSS dotted was 2px) */
+  --muted: #D8D8D8;        /* inactive list items, caption, pagination */
+  --dim: 0.4;
+  --hover: #ff0000;
 
-  --pad-y: 10px;
-  --pad-x: 20px;
-  --gap: 10px;
-  --stack-gap: 40px;       /* vertical gap between Info sections */
-  --row-gap: 20px;         /* horizontal gap inside CV rows */
+  --pad-x: 20px;           /* left margin (and right, for text) */
+  --pad-top: 20px;         /* space above row 1 */
+  --gap: 10px;             /* between grid columns */
+  --row-gap: 40px;         /* between rows (CXYZ / Projects / Contact …) */
+  --shot-bottom: 40px;     /* space under each big image */
+  --jump-bottom: 20px;     /* Read More / Go Back / Exit: distance from the bottom */
 
   --cols: 12;
-  /* width of one grid column, so non-grid layouts (News strip) can line up */
+  /* width of one grid column */
   --col: calc((100vw - 2 * var(--pad-x) - (var(--cols) - 1) * var(--gap)) / var(--cols));
 
-  --module-h: 88svh;
-  --nav-height: calc(2 * var(--lh) * var(--fs) + 16px);
-  --nav-h: calc(100svh - var(--module-h));
-
-  --frame-max-w: 65cqw;
-  --frame-max-h: 80cqh;
-  --frame-pad: 10px;
-  --thumb: 60px;
-
-  --hover: #ff0000;
+  --toggle: 20px;          /* Picture World circle */
+  --ball: 60px;            /* Picture World ball */
 }
 
-/* Black background + white text & borders.
-   Apply data-theme="dark" to .site (whole site, via Studio setting)
-   or to any single module to invert just that module. */
+/* Black background + white text. Set in Studio → Site settings. */
 [data-theme='dark'] {
   --bg: #000;
   --fg: #fff;
+  --muted: rgba(255, 255, 255, 0.3);
 }
 [data-theme='light'] {
   --bg: #fff;
@@ -76,14 +68,10 @@
   :root {
     --fs: 14px;
     --pad-x: 10px;
-    --pad-y: 10px;
-    --stack-gap: 20px;
-    --row-gap: 10px;
-    --module-h: 80svh;
-    --frame-pad: 10px;
-    --thumb: 30px;
-    --logo-h: calc((100vw - 2 * var(--pad-x)) * 234 / 4660);
-    --nav-height: calc(10px + var(--logo-h) + 10px + 2 * var(--lh) * var(--fs) + 5px + 1px);
+    --pad-top: 10px;
+    --row-gap: 20px;
+    --shot-bottom: 10px;
+    --ball: 40px;
   }
 }
 
@@ -96,16 +84,13 @@ body { margin: 0; }
 
 /* ── Custom hover cursor ─────────────────────────────────────
    The two numbers are the hotspot: the pixel in your image that
-   actually "clicks" (0 0 = top-left corner, 16 16 = centre of a
-   32px image). `pointer` is the fallback if the image can't load. */
+   actually "clicks". `pointer` is the fallback if the image can't load. */
 :root {
   --cursor-hover: url('/cursors/hover.svg') 13 4, pointer;
 }
 .site a,
 .site button,
-.site [role='button'],
-.site .thumb,
-.site .frame__media {
+.site [role='button'] {
   cursor: var(--cursor-hover);
 }
 .site button:disabled { cursor: default; }
@@ -119,258 +104,323 @@ body { margin: 0; }
   color: var(--fg);
   min-height: 100svh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
-.site [data-theme] { background: var(--bg); color: var(--fg); }
 
 .site a { color: inherit; text-decoration: none; }
 .site a:hover,
 .site button:hover,
-.site [role='button']:hover { color: var(--hover); opacity: 1; }
+.site [role='button']:hover { color: var(--hover); }
 .site a,
 .site button,
 .site [role='button'] {
   transition: color 0.3s ease;
 }
 .site button, .site textarea, .site input {
-  font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; border-radius: 0;
+  font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; border-radius: 0; text-align: left;
 }
 .site p { margin: 0; }
 .site p + p { margin-top: 1em; }
-.site h2, .site h3 { font: inherit; margin-top: 0}
+.site h1, .site h2, .site h3 { font: inherit; margin: 0; }
 .site ul { list-style: none; margin: 0; padding: 0; }
-
-.dim { opacity: var(--dim); }
-.is-active { opacity: 1; }
-
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   MODULE + GRID
-   ───────────────────────────────────────────────────────────── */
-.module {
-  padding: var(--pad-y) var(--pad-x);
-  border-bottom: var(--rule);
-  --db: var(--fg);
-}
 
 .grid {
   display: grid;
   grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
   column-gap: var(--gap);
+  padding: 0 var(--pad-x);
 }
 
 /* ─────────────────────────────────────────────────────────────
-   NAV
+   SIDE COLUMN (cols 1–3): label in col 1, content in cols 2–3
    ───────────────────────────────────────────────────────────── */
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg);
-  padding-top: 10px;
-  padding-bottom: 5px;
-  height: var(--nav-height);      
-  overflow: visible;
+.side {
+  grid-column: 1 / span 3;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: var(--row-gap);
+  align-content: start;
+  padding-top: var(--pad-top);
+}
+.side__row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
   align-items: start;
 }
-.nav .nav__logo {
-  grid-column: 1 / span 6;
-  display: block;
-  padding-top: 0;
-  color: #D8D8D8;        
-}
-.nav__logo {
-  grid-column: 1 / span 6;
-  display: block;
-  padding-top: 0.2em;
-  color: #D8D8D8;        
-}
-.nav__logo-mark {
-  display: block;
-  width: 50vw;
-  max-width: 100%;
-  height: calc(2 * var(--lh) * 1em - 5px);
-  background-color: currentColor; 
-  -webkit-mask: url('/logo-long3.svg') left top / contain no-repeat;
-          mask: url('/logo-long3.svg') left top / contain no-repeat;
-}
+.side__label { grid-column: 1; }
+.side__content { grid-column: 2 / -1; min-width: 0; }
 
-.nav .navcol { position: relative; min-width: 0; height: calc(2 * var(--lh) * 1em); }
-.nav .navcol--projects { grid-column: 7 / span 3; }
-.nav .navcol--log { grid-column: 10 / span 3; }
-
-.nav .navcol__head,
-.nav .navcol__sub {
+/* Picture World toggle: 20px grey circle, centred on the CXYZ line */
+.site .world-toggle {
   display: block;
-  width: 100%;
-  height: calc(var(--lh) * 1em);
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: var(--toggle);
+  height: var(--toggle);
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: background-color 0.3s ease;
 }
-.nav .navcol__sub { opacity: var(--dim); }
+.site .world-toggle:hover { background: var(--hover); }
 
-/* Overlay. Item padding is 5px 10px 0 10px, so the list starts 5px above
-   line 2 and 10px left of the column: first item's text lands exactly on
-   the displayed value. */
-.nav .navmenu {
+/* Lists where one item is "active": grey, the active one black */
+.site .pick { color: var(--muted); }
+.site .pick[aria-current='true'] { color: var(--fg); }
+.site .pick:hover { color: var(--hover); }
+
+/* Project titles + "See More" (col 3 when the title fits in col 2, otherwise right after it) */
+.project-line { display: flex; column-gap: var(--gap); align-items: baseline; }
+.project-line .pick { min-width: var(--col); flex: 0 1 auto; }
+.see-more { flex: none; white-space: nowrap; }
+
+/* ↓ Read More / ↑ Back to Top / ← Go Back / Exit — bottom-left */
+.site .jump {
   position: absolute;
-  top: calc(var(--lh) * 1em - 5px);
-  left: -10px;
-  right: 0;
-  z-index: 1;
-  margin: 0;
-  padding: 0;
-  max-height: calc(100svh - 80px);
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.nav .navmenu::-webkit-scrollbar { display: none; }
-
-/* the row: solid background + dotted line (full opacity) */
-.nav .navmenu > li {
-  background: var(--bg);
-  border-bottom: var(--rule);
-  --db: var(--fg);
-}
-/* the text inside the row (only this part is dimmed) */
-.nav .navmenu .navmenu__item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 5px 10px 0 10px;
-}
-.nav .navmenu > li > .navmenu__item { opacity: var(--dim); }
-.nav .navmenu > li > .navmenu__item:hover { opacity: 1; }
-
-.nav .navmenu--log > li.navmenu__item { padding-bottom: 5px; }
-.nav .navmenu__date { display: block; opacity: var(--dim); }
-
-@media (max-width: 768px) {
-  .nav {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 10px;
-    row-gap: 10px;
-    height: var(--nav-height);
-  }
-  .nav .nav__logo { grid-column: 1 / -1; padding-top: 0; }
-  .nav__logo-mark {
-    width: 100%;
-    height: var(--logo-h);
-    -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-  }
-  .nav .navcol--projects { grid-column: 1; }
-  .nav .navcol--log { grid-column: 2; }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   CAROUSEL
-   ───────────────────────────────────────────────────────────── */
-.carousel {
-  position: relative;
-  height: var(--module-h);
-  padding: 0;
-  overflow: hidden;
-  container-type: size;   /* enables cqw/cqh for frame sizing */
-}
-
-.frame {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: fit-content;
-  height: fit-content;
-  padding: var(--frame-pad);
-  border: var(--rule);
-  /* --ar is set per slide (width / height). The media box is the largest
-     size that fits inside max-w × max-h while keeping the aspect ratio. */
-  --dt: var(--fg); --db: var(--fg); --dl: var(--fg); --dr: var(--fg);
-  --box-w: min(
-    calc(var(--frame-max-w) - 2 * var(--frame-pad) - 2px),
-    calc((var(--frame-max-h) - 2 * var(--frame-pad) - 2px) * var(--ar, 1.5))
-  );
-}
-.frame__media {
-  display: block;
-  width: var(--box-w);
-  aspect-ratio: var(--ar, 1.5);
-  position: relative;
-}
-.frame__media > img,
-.frame__media > video,
-.frame__media > iframe {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;   /* preserve aspect ratio */
-  border: 0;
-  background-size: cover;
-}
-.frame__media--interactive { cursor: auto; }
-.pdf { width: 100%; height: 100%; display: grid; place-items: center; }
-.pdf__page { display: block; width: 100%; height: 100%; object-fit: contain; }
-.pdf__fallback { opacity: var(--dim); }
-
-.carousel__bottom {
-  position: absolute;
-  left: 50%;
-  bottom: 20px;
-  transform: translateX(-50%);
+  left: var(--pad-x);
+  bottom: var(--jump-bottom);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  text-align: center;
-  max-width: 65cqw;
+  align-items: flex-start;
+  gap: 16px;
 }
-.carousel__caption { opacity: var(--dim); }
-.pagination { display: flex; gap: var(--gap); justify-content: center; }
-.pagination button { opacity: var(--dim); font-variant-numeric: tabular-nums; }
-.pagination button[aria-current='true'] { opacity: 1; }
+.site .jump--fixed { position: fixed; z-index: 10; }
+.arrow { display: block; overflow: visible; }
 
-.carousel .thumb {
-  position: absolute;
-  display: block;
-  padding: 0;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #D8D8D8;          /* grey fill by default */
-  transition: opacity 0.2s linear;
-  z-index: 5;                   /* rolls over the image frame, under the transition lines */
+/* One big image/video/PDF: as large as fits in its column × (screen height − 40px),
+   proportions kept, pushed to the right edge, top-aligned */
+.shot {
+  width: min(100%, calc((100svh - var(--shot-bottom)) * var(--ar, 1.5)));
+  aspect-ratio: var(--ar, 1.5);
+  margin-left: auto;
+  position: relative;
 }
-.thumb img {
+.shot > img,
+.shot > video,
+.shot > iframe {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border: 0;
+  background-size: cover;
+}
+/* a PDF in a project: just a download link where the image would be */
+.shot-download { display: block; }
+
+/* ─────────────────────────────────────────────────────────────
+   HOME — first screen: active project image full-bleed
+   ───────────────────────────────────────────────────────────── */
+.hero {
+  --strip-h: calc(var(--lh) * var(--fs) + 30px);
+  position: sticky;
+  top: calc(var(--strip-h) - 100svh);   /* stops scrolling once only the strip is left */
+  z-index: 5;                            /* text scrolls underneath it */
+  height: 100svh;
+  align-items: start;
+}
+/* image fills the screen above the Read More strip, cropped to fit */
+.hero__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  display: block;
+}
+.hero .shot {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  margin: 0;
+}
+.hero .shot > img,
+.hero .shot > video { object-fit: cover; }
+/* 10% black over the image, under the text */
+.hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.17);
+  pointer-events: none;
+}
+/* text sits above the image */
+.hero .side { position: relative; z-index: 1; }
+.site .hero .jump { bottom: 10px; z-index: 1; }
+
+/* ─────────────────────────────────────────────────────────────
+   HOME — text content (CV / News / Log)
+   ───────────────────────────────────────────────────────────── */
+.more {
+  row-gap: var(--row-gap);
+  padding-top: 30px;         
+  padding-bottom: var(--row-gap);
+  min-height:95svh;
+  align-content: start;
+}
+.more__row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: start;
+}
+.more__label { grid-column: 1; }
+.more__list { grid-column: 2 / span 3; }
+.more__content {
+  grid-column: 5 / span 4;
+  overflow: hidden;
+  transition: height 0.4s ease;  
+}
+.more__inner { align-self: start; }  
+.more__fade { animation: fade-in 0.4s ease; }
+.more__download { margin-top: 1em; }
+
+.news-list > li { display: flex; flex-direction: column; }
+.news-list > li + li { margin-top: 1em; }
+
+/* CV entries inside cols 5–8: year in col 5, text in cols 6–8 */
+.cv-list { display: grid; grid-template-columns: subgrid; row-gap: var(--gap); }
+.more__content:has(.cv-list),
+.more__content:has(.cv-list) .more__inner,
+.more__content:has(.cv-list) .more__fade { display: grid; grid-template-columns: subgrid; }
+.more__content .more__inner,
+.more__content .more__fade,
+.more__content .cv-list { grid-column: 1 / -1; }
+.cv-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+.cv-row__year { grid-column: 1; opacity: var(--dim); font-variant-numeric: tabular-nums; }
+.cv-row__text { grid-column: 2 / -1; }
+
+/* ─────────────────────────────────────────────────────────────
+   PROJECT PAGE
+   ───────────────────────────────────────────────────────────── */
+.side--fixed {
+  position: sticky;            /* stays put while the images scroll */
+  top: 0;
+  grid-row: 1;
+  z-index: 10;
+}
+.detail__meta { display: block; }       /* caption + pagination across cols 1–3 */
+.detail__caption { color: var(--muted); }
+.detail__pages { display: flex; flex-wrap: wrap; column-gap: 0.35em; }
+.detail { align-items: start; animation: fade-in 1s ease; }   /* project page fades in */
+@keyframes fade-in { from { opacity: 0; } }
+.detail__media {
+  grid-column: 5 / -1;          /* was 4 / -1 */
+  grid-row: 1;
+  margin-right: calc(-1 * var(--pad-x));
+}
+.detail__frame .shot { margin-left: 0; }
+.detail__frame {
+  padding-bottom: var(--shot-bottom);
+  transition: opacity 0.8s ease;
+}
+.detail__frame.is-waiting { opacity: 0; }   /* below the screen, not seen yet */
+@media (prefers-reduced-motion: reduce) {
+  .detail__frame { transition: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PICTURE WORLD
+   ───────────────────────────────────────────────────────────── */
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: 90;              /* above the page, below the letter drawings + intro */
+  background: #000;
+  overflow: hidden;
+  cursor: crosshair;
+}
+.world__scene { position: absolute; inset: 0; }
+.world__bg,
+.world__float {
+  opacity: 0;
+  transition: opacity 0.8s ease;   /* fade in once loaded */
+}
+.world__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.world__float { position: absolute; object-fit: cover; display: block; }
+.world__bg.is-loaded,
+.world__float.is-loaded { opacity: 1; }
+.world__ball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--ball);
+  height: var(--ball);
   border-radius: 50%;
-  opacity: 0;                   /* hidden until hover */
-  transition: opacity 0.2s linear;
+  background: red;
+  mix-blend-mode: normal;
+  will-change: transform;
+  pointer-events: none;
 }
-/* reveal the image on hover (and on keyboard focus) */
-/* reveal the image on hover (and on keyboard focus), and always on the active project */
-.carousel .thumb:hover img,
-.carousel .thumb:focus-visible img,
-.carousel .thumb[aria-current='true'] img { opacity: 1; }
-.thumb--settle { transition: left 0.3s ease-out, top 0.3s ease-out, opacity 0.2s linear; }
+/* dotted aiming line, ball → mouse */
+.world__aim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  mix-blend-mode: nomral;
+}
+.world__aim line {
+  stroke: red;
+  stroke-width: 2px;
+  stroke-dasharray: 2 8;        /* 1px dot, 4px gap */
+  visibility: hidden;           /* shown once the mouse moves over the picture */
+}
+/* CXYZ + circle and Exit stay readable on any picture */
+.world__ui {
+  position: absolute;
+  inset: 0 0 auto 0;
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+.world__ui a, .world__ui button { pointer-events: auto; }
+.world .world-toggle { background: #fff; }
+.site .world__exit { color: #fff; mix-blend-mode: difference; }
+@keyframes world-in { from { opacity: 0; } }
 
-.carousel__empty { position: absolute; inset: 0; display: grid; place-items: center; opacity: var(--dim); }
-
+/* ─────────────────────────────────────────────────────────────
+   PHONES
+   ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .carousel { --frame-max-w: calc(100cqw - 20px); --frame-max-h: 67cqh; }
-  .carousel__bottom { max-width: calc(100cqw - 20px); }
+  /* side: label column + content column */
+  .side {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 2fr;
+  }
+  .side--fixed { position: static; padding-bottom: var(--row-gap); }
+
+  .site .hero .jump { position: absolute; padding-bottom: 0; }
+
+  .shot { width: 100%; }
+  .site .jump { position: static; grid-column: 1 / -1; padding-bottom: var(--jump-bottom); }
+
+  .more { padding-top: var(--row-gap); min-height: 0; }
+  .more__row { grid-template-columns: 1fr 2fr; column-gap: var(--gap); row-gap: var(--row-gap); }
+  .more__label { grid-column: 1; }
+  .more__list, .more__content { grid-column: 2; }
+  .more__content:has(.cv-list),
+  .more__content:has(.cv-list) .more__inner,
+  .more__content:has(.cv-list) .more__fade { display: block; }
+  .cv-list { display: flex; flex-direction: column; }
+  .cv-row { display: flex; gap: var(--gap); }
+  .cv-row__year { min-width: 4.5ch; }
+
+  .detail__media { grid-column: 1 / -1; grid-row: auto; }
+  /* Go Back sits after the images instead of floating over them */
+
+  .site .world__exit { position: absolute; }
 }
 
-/* ── Letter drawing (hover a C/X/Y/Z): over the whole viewport ── */
+/* ─────────────────────────────────────────────────────────────
+   LETTER DRAWING (hover a C/X/Y/Z): over the whole viewport
+   ───────────────────────────────────────────────────────────── */
 .letter-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;         /* never blocks clicks or hovering */
-  z-index: 100;                 /* above everything, incl. the nav */
+  z-index: 100;
   mix-blend-mode: difference;   /* white line inverts whatever is under it */
 }
 .letter-transition { display: block; overflow: visible; }
@@ -378,11 +428,10 @@ body { margin: 0; }
   fill: none;
   stroke: #fff;
   stroke-width: 2px;
-  stroke-dasharray: 1 3;        /* dotted: 1px dot, 2px gap */
+  stroke-dasharray: 1 3;
   stroke-linecap: butt;
   stroke-linejoin: bevel;
 }
-/* solid, wider copy used as a mask: draws on, then draws off — linearly */
 .letter-transition__reveal {
   fill: none;
   stroke: #fff;
@@ -396,7 +445,7 @@ body { margin: 0; }
 @keyframes letter-draw {
   0%   { stroke-dashoffset: 1; }   /* hidden */
   40%  { stroke-dashoffset: 0; }   /* fully drawn… */
-  70%  { stroke-dashoffset: 0; }   /* …stays on screen… */
+  60%  { stroke-dashoffset: 0; }   /* …stays on screen… */
   100% { stroke-dashoffset: -1; }  /* …then erases from the start */
 }
 @media (prefers-reduced-motion: reduce) {
@@ -404,188 +453,10 @@ body { margin: 0; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   INFORMATION
+   LANDING ANIMATION
    ───────────────────────────────────────────────────────────── */
-.info {
-  /* scrolls with the page (not its own box) so labels can stick under the nav */
-  min-height: var(--module-h);
-  row-gap: var(--gap);
-  align-items: start;
-}
-.info__left,
-.info__right { align-self: stretch; } 
-
-.info__left {
-  grid-column: 3 / span 3;
-  display: flex;
-  flex-direction: column;
-}
-.info__question {
-  grid-column: 1 / span 2;
-  grid-row: 1;
-  align-self: stretch;         
-}
-.info__question .question {
-  position: fixed;
-  left: var(--pad-x);
-  width: calc(1.5 * var(--col) + var(--gap));
-  z-index: 20;              
-  top: calc(var(--nav-height) + var(--pad-y) + var(--lh) * var(--fs) + 5px + 1px);
-}
-.info__left, .info__right { grid-row: 1; }
-
-.info__right {
-  grid-column: 6 / span 6;
-  display: grid;
-  grid-template-columns: subgrid;
-  align-content: start;
-}
-.cv-list,
-.cv-row {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: subgrid;
-}
-.info .cv-list { margin: 0 0 var(--stack-gap); }   /* .info: beats the general `.site ul` reset */
-.cv-label {
-  grid-column: 1 / -1;                          /* full row, so its background also hides the years */
-  padding-left: calc(var(--col) + var(--gap));  /* text still starts at col 7 */
-}
-
-.info .info__label { 
-  position: sticky;
-  top: var(--nav-height);
-  z-index: 0;
-  background: var(--bg);
-  padding-top: var(--pad-y);
-  margin-top: calc(-1 * var(--pad-y));
-  padding-bottom: 5px; 
-  margin-bottom: 10px;
-}
-.info .info__label.is-pinned { z-index: 2; } 
-.info__label.is-gone { visibility: hidden; }
-
-.sticky-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: var(--nav-height);
-  z-index: 1;                 /* above content, below the labels (z-index 2) */
-  box-sizing: border-box;
-  background: var(--bg);
-  border-bottom: var(--rule);
-  --db: var(--fg);
-  pointer-events: none;
-}
-.cv-row__year {
-  grid-column: 1;
-  text-align: right;          /* right-aligned to col 6 */
-  white-space: nowrap;        /* long ranges (2022–2024) spill left into empty col 5 */
-  opacity: var(--dim);
-  font-variant-numeric: tabular-nums;
-}
-.cv-row__text { grid-column: 2 / -1; }
-.cv-row__detail { opacity: var(--dim); }
-
-@media (max-width: 768px) {
-  .info__left, .info__right { grid-column: 1 / -1; grid-row: auto; }
-  .info__question { grid-column: 1 / -1; grid-row: auto; order: 1; margin-top: var(--stack-gap); }
-  .info__question .question { position: static; width: auto; }
-  .info__right { order: 2; }
-  .info__right { margin-top: var(--stack-gap); display: block; }
-  .cv-list { display: block; }
-  .info .info__label { padding-bottom: 5px; margin-bottom: 0; }
-  .cv-label { padding-left: 0; }
-  .cv-row { display: flex; gap: var(--row-gap); }
-  .cv-row__year { text-align: left; min-width: 4.5ch; }
-}
-
-/* News under the bio: one block per item (title / venue / date) */
-.info .bio { margin-bottom: var(--stack-gap); }
-.info-news__item { display: flex; flex-direction: column; }
-.info-news__item + .info-news__item { margin-top: var(--stack-gap); }
-
-/* ── Question module ─────────────────────────────────────────── */
-.question { display: flex; flex-direction: column; align-items: flex-start; }
-.question .question__label,
-.question .question__submit {
-  display: inline-block;
-  width: fit-content;            /* hug content */
-  padding: 8px 4px 2px 4px;
-  border: var(--rule);
-}
-.question .question__label { border-bottom: 0; --dt: var(--fg); --dl: var(--fg); --dr: var(--fg); background-color: var(--bg);}   /* shares the box's top line */
-.question .question__submit { border-top: 0; --db: var(--fg); --dl: var(--fg); --dr: var(--fg); background-color: var(--bg);}    /* shares the box's bottom line */
-.question .question__field {
-  display: block;
-  width: 100%;
-  height: 200px;
-  padding: 8px 4px;
-  border: var(--rule);
-  --dt: var(--fg); --db: var(--fg); --dl: var(--fg); --dr: var(--fg);
-  resize: none;
-  outline: none;
-  background-color: var(--bg);
-}
-.question__field::placeholder { color: var(--fg); opacity: var(--dim); }
-.question__status { opacity: var(--dim); margin-top: var(--gap); }
-.question__status:empty { display: none; }
-.question__hp { position: absolute; left: -9999px; }
-
-@media (max-width: 768px) { .question .question__field { height: 120px; } }
-
-/* ─────────────────────────────────────────────────────────────
-   NEWS (horizontal strip that keeps the 12-col rhythm)
-   ───────────────────────────────────────────────────────────── */
-.news {
-  display: flex;
-  gap: var(--gap);
-  overflow-x: auto;
-  scrollbar-width: none;
-  /* cols 1–2 blank */
-  padding-left: calc(var(--pad-x) + 2 * (var(--col) + var(--gap)));
-}
-.news::-webkit-scrollbar { display: none; }
-.news__label { flex: 0 0 calc(2 * var(--col) + var(--gap)); }
-.news__item  { flex: 0 0 calc(3 * var(--col) + 2 * var(--gap)); }
-.news__item:last-child { margin-right: var(--pad-x); }
-.news__meta { display: block; }
-
-@media (max-width: 768px) {
-  .news { flex-direction: column; overflow-x: visible; padding-left: var(--pad-x); }
-  .news__label, .news__item { flex: none; width: 100%; }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   FOOTER
-   ───────────────────────────────────────────────────────────── */
-.footer { border-bottom: 0; --db: transparent; row-gap: var(--gap); }
-.footer__copy { grid-column: 7 / span 2; }
-.footer__links { grid-column: 10 / span 3; display: flex; flex-direction: column; }
-@media (max-width: 768px) {
-  .footer__copy, .footer__links { grid-column: 1 / -1; }
-  .footer__links { flex-direction: row; flex-wrap: wrap; gap: var(--gap) var(--row-gap); }
-}
-
-/* DOTTED LINES: gradients land exactly on the pixel grid, so dots are evenly spaced.
-   Each side shows when the element sets --dt / --db / --dl / --dr. Spacing: --dot-gap. */
-:is(.module, .nav .navmenu > li, .frame, .sticky-bar,
-    .question .question__label, .question .question__submit, .question .question__field) {
-  background-image:
-    linear-gradient(to right, var(--dt, transparent) 1px, transparent 1px),
-    linear-gradient(to right, var(--db, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--dl, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--dr, transparent) 1px, transparent 1px);
-  background-size: var(--dot-gap) 1px, var(--dot-gap) 1px, 1px var(--dot-gap), 1px var(--dot-gap);
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-position: left top, left bottom, left top, right top;
-  background-origin: border-box;
-  background-clip: border-box;
-}
-
-/* ── Landing animation ── */
 .intro {
-  --intro-step: 0.2s;         /* per letter: 4 × 0.375s = 1.5s */
+  --intro-step: 0.2s;           /* per letter; total = 4 × this */
   position: fixed;
   inset: 0;
   z-index: 200;

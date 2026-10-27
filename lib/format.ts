@@ -41,7 +41,10 @@ export function formatLogDate(iso: string, withTime = false) {
   }).format(new Date(iso))
 }
 
-/** Sep 27, 2026 · Sep 27, 2026 @3PM · Aug 12–28, 2026 · Sep 16–Dec 19, 2026 · Dec 28, 2026–Jan 3, 2027 */
+/**
+ * News dates, written out:
+ *   Sep 27, 2026 · Sep 27, 2026 @3PM · Aug 12–28, 2026 · Sep 16–Dec 19, 2026 · Dec 28, 2026–Jan 3, 2027
+ */
 export function formatNewsDate(startIso: string, endIso?: string, withTime = false) {
   const p = (iso: string) => {
     const f = new Intl.DateTimeFormat('en-US', { timeZone: TIMEZONE, year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }).formatToParts(new Date(iso))

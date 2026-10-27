@@ -19,6 +19,9 @@ export type Project = {
   thumbnail?: SanityImage
   thumbnailAr: number
   media?: MediaItem[]
+  background?: string  
+  worldX?: number
+  worldY?: number
 }
 
 export type CvEntry = { _key: string; year: string; text: string; detail?: string; link?: string }
@@ -57,6 +60,7 @@ export type Settings = {
   instagram?: string
   substack?: string
   portfolioPdfUrl?: string
+  cvPdfUrl?: string
   questions?: string[]
   questionThanks?: string
 }

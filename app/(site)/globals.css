@@ -14,8 +14,6 @@
   font-display: swap;
 }
 
-/* TODO: pick the Chinese font (e.g. a Song/Ming serif to pair with Remus)
-   and put its file here. Until then the system CJK fonts in the stack are used. */
 @font-face {
   font-family: 'SiteCJK';
   src: url('/fonts/CJK-Regular.woff2') format('woff2');
@@ -241,6 +239,54 @@ body { margin: 0; }
 .hero .side { position: relative; z-index: 1; }
 .site .hero .jump { bottom: 10px; z-index: 1; }
 
+/* ── Question (bottom-right of the home image) ──────────────────
+   Closed: a small "Q" circle. Open: cols 10–12, question + × on top,
+   answer line + → below. */
+.q {
+  --q-size: 30px;                       /* the circles */
+  position: absolute;
+  right: var(--pad-x);
+  bottom: 20px;                         /* same line as About */
+  z-index: 2;
+  width: calc(3 * var(--col) + 2 * var(--gap));
+  display: grid;
+  grid-template-columns: 1fr var(--q-size);
+  column-gap: 20px;
+  row-gap: 10px;
+  align-items: end;
+  color: var(--fg);
+  pointer-events: none;                 /* closed: only the Q circle is clickable */
+}
+.q__text  { grid-column: 1; grid-row: 1; }
+.q__close { grid-column: 2; grid-row: 1; align-self: center; }
+.q__input { grid-column: 1; grid-row: 2; }
+.q__go    { grid-column: 2; grid-row: 2; pointer-events: auto; }
+.q__text, .q__close, .q__input {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+.q.is-open .q__text,
+.q.is-open .q__close,
+.q.is-open .q__input { opacity: 1; visibility: visible; pointer-events: auto; }
+.site .q__circle {
+  width: var(--q-size);
+  height: var(--q-size);
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.q__circle svg { display: block; }
+.site .q__input {
+  width: 100%;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  outline: none;
+}
+.q__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
 /* ─────────────────────────────────────────────────────────────
    HOME — text content (CV / News / Log)
    ───────────────────────────────────────────────────────────── */
@@ -386,7 +432,7 @@ body { margin: 0; }
     grid-template-columns: 1fr 2fr;
   }
 
-  .site .hero .jump { position: absolute; padding-bottom: 0; }
+  .site .hero .jump { position: absolute; grid-column: auto; padding-bottom: 0; }
 
   .shot { width: 100%; }
   .site .jump { position: static; grid-column: 1 / -1; padding-bottom: var(--jump-bottom); }
@@ -445,6 +491,10 @@ body { margin: 0; }
   .site .jump--fixed { display: none; }   /* no Go Back on phones: CXYZ and the arrows do the job */
 
   .site .world__exit { position: absolute; }
+
+  /* question: full width when open; About steps aside meanwhile */
+  .q { width: calc(100% - 2 * var(--pad-x)); }
+  .hero:has(.q.is-open) .jump { opacity: 0; pointer-events: none; }
 }
 
 /* ─────────────────────────────────────────────────────────────

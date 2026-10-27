@@ -1,16 +1,11 @@
 'use client'
 
-/**
- * Home, first screen:
- *   col 1–3  CXYZ + Picture World toggle / Projects / Contact, rows 40px apart
- *   col 4–12 first image of the active project (to the right edge, top-aligned)
- *   bottom-left: ↓ Read More (becomes ↑ Back to Top once scrolled down)
- */
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { MediaItem, Settings } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
 import { Shot, TopRow } from './Shared'
+import { QuestionPop } from './QuestionPop'
 
 export function Home({ settings }: { settings: Settings }) {
   const { projects, activeIndex, setActiveIndex } = useProjects()
@@ -107,6 +102,7 @@ export function Home({ settings }: { settings: Settings }) {
       <button type="button" ref={jumpRef} className="jump" onClick={jump}>
         <span>{down ? 'Back to Top' : 'About'}</span>
       </button>
+      {!!settings.questions?.length && <QuestionPop questions={settings.questions} thanks={settings.questionThanks} />}
     </section>
   )
 }

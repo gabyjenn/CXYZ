@@ -47,7 +47,7 @@ export const LOG_QUERY = defineQuery(`
 `)
 
 export const NEWS_QUERY = defineQuery(`
-  *[_type == "newsItem"] | order(startsAt desc) { _id, title, link, venue, startsAt, endsAt, showTime }
+  *[_type == "newsItem"] | order(defined(orderRank) desc, orderRank asc, startsAt desc) { _id, title, link, venue, startsAt, endsAt, showTime }
 `)
 
 export const SETTINGS_QUERY = defineQuery(`

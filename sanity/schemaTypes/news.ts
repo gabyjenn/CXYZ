@@ -1,11 +1,14 @@
 import { defineField, defineType } from 'sanity'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
 
 export const newsItem = defineType({
   name: 'newsItem',
   title: 'News item',
   type: 'document',
-  orderings: [{ title: 'Date, newest', name: 'dateDesc', by: [{ field: 'startsAt', direction: 'desc' }] }],
+  orderings: [orderRankOrdering, { title: 'Date, newest', name: 'dateDesc', by: [{ field: 'startsAt', direction: 'desc' }] }],
   fields: [
+    // hidden: the position you set by dragging in Studio → News
+    orderRankField({ type: 'newsItem' }),
     defineField({ name: 'title', type: 'string', validation: (r) => r.required() }),
     defineField({ name: 'link', title: 'External link (optional)', type: 'url' }),
     defineField({ name: 'venue', title: 'Location / Venue', type: 'string' }),

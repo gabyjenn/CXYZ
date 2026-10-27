@@ -350,9 +350,9 @@ function World() {
 
   // dotted aiming line from the ball to the pointer.
   //  Mouse: shows whenever the mouse is over the picture (not over CXYZ / World).
-  //  Touch: press and hold ~0.35s → the line appears; drag to aim; let go to shoot.
-  //         A quick tap still shoots straight away, like a click.
-  const hold = useRef<{ timer: number; aiming: boolean; skipClick: boolean }>({ timer: 0, aiming: false, skipClick: false })
+  //  Touch: a light tap shoots straight away (like a click). Press and hold ~0.35s
+  //         → the line appears; drag to aim; let go to shoot.
+  const hold = useRef({ timer: 0, aiming: false, skipUntil: 0 })
   const aimAt = (x: number, y: number) => {
     aimRef.current?.setAttribute('x2', String(x))
     aimRef.current?.setAttribute('y2', String(y))
@@ -383,7 +383,7 @@ function World() {
     clearTimeout(hold.current.timer)
     if (!hold.current.aiming) return // quick tap: the click below shoots
     hold.current.aiming = false
-    hold.current.skipClick = true // this touch already shot; ignore the click that follows
+    hold.current.skipUntil = Date.now() + 500 // this touch already shot; ignore a click right after it (if the phone sends one)
     aimOk.current = false
     shoot(e.clientX, e.clientY) // hides the line while rolling
     updateAim()
@@ -402,10 +402,7 @@ function World() {
   useEffect(() => () => clearTimeout(hold.current.timer), [])
 
   const onClick = (e: React.MouseEvent) => {
-    if (hold.current.skipClick) {
-      hold.current.skipClick = false
-      return
-    }
+    if (Date.now() < hold.current.skipUntil) return
     if ((e.target as HTMLElement).closest('a, button')) return
     shoot(e.clientX, e.clientY)
   }
@@ -428,6 +425,7 @@ function World() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="world__bg"
+            draggable={false}
             src={src(shown.bg, 1400)}
             alt=""
             onLoad={(e) => e.currentTarget.classList.add('is-loaded')}
@@ -437,6 +435,7 @@ function World() {
             <img
               key={f.key}
               className="world__float"
+              draggable={false}
               src={src(f.image, f.w)}
               alt={f.image.alt ?? ''}
               onLoad={(e) => e.currentTarget.classList.add('is-loaded')}

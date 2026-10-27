@@ -169,7 +169,7 @@ export function More({ information, news, log, settings }: Props) {
       )}
 
       {log.length > 0 && (
-        <div className="more__row">
+        <div className="more__row more__row--log">
           <h2 className="more__label">
             <button type="button" aria-expanded={logOpen} onClick={() => setLogOpen((o) => !o)}>
               Log {logOpen ? '−' : '+'}
@@ -183,6 +183,12 @@ export function More({ information, news, log, settings }: Props) {
                     <button type="button" className="pick" aria-current={l._id === logActive} onClick={() => setLogActive(l._id)}>
                       <time dateTime={l.date}>{formatLogDate(l.date, l.showTime)}</time>
                     </button>
+                    {/* phones: the entry opens right under its date */}
+                    {l._id === logActive && (
+                      <div className="log-inline more__fade" key={l._id}>
+                        <PortableText value={l.text} components={ptComponents} />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

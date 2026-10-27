@@ -13,6 +13,14 @@ export function Home({ settings }: { settings: Settings }) {
   const jumpRef = useRef<HTMLButtonElement>(null)
   const [down, setDown] = useState(false)
 
+  // home always uses the site's default colours (black), even if a project page
+  // with its own background colour didn't get to undo it on the way out
+  useEffect(() => {
+    const site = document.querySelector<HTMLElement>('.site')
+    ;['--bg', '--fg', '--muted'].forEach((k) => site?.style.removeProperty(k))
+    document.documentElement.style.background = ''
+  }, [])
+
   // the project's first image (exactly as on its project page); falls back to its first video,
   // then to the thumbnail override
   const first: MediaItem | undefined = active

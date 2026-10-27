@@ -493,7 +493,7 @@ body { margin: 0; }
   .site .world__exit { position: absolute; }
 
   /* question: full width when open; About steps aside meanwhile */
-  .q { width: calc(100% - 2 * var(--pad-x)); }
+  .q { width: calc(100% - 2 * var(--pad-x));  bottom: 12px;  --q-size: 25px;  }
   .hero:has(.q.is-open) .jump { opacity: 0; pointer-events: none; }
 }
 

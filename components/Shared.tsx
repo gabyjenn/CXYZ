@@ -18,12 +18,30 @@ export function TopRow() {
         CXYZ
       </Link>
       <div className="side__content">
-        <button type="button" className="world-toggle" aria-pressed={world} onClick={() => setWorld(!world)}>
+        <button
+          type="button"
+          className="world-toggle"
+          aria-pressed={world}
+          onClick={() => {
+            if (!world) askForTilt() // iPhone: ask for motion access (must happen on a tap)
+            setWorld(!world)
+          }}
+        >
           World
         </button>
       </div>
     </div>
   )
+}
+
+/**
+ * iPhones only share phone tilt after the visitor allows it, and the request has to
+ * come from a tap. Other phones (and desktops) don't need this, so it does nothing there.
+ */
+export function askForTilt() {
+  const D = (window as unknown as { DeviceOrientationEvent?: { requestPermission?: () => Promise<string> } })
+    .DeviceOrientationEvent
+  if (typeof D?.requestPermission === 'function') D.requestPermission().catch(() => {})
 }
 
 /**

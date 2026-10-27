@@ -20,9 +20,10 @@ import { TopRow } from './Shared'
 
 const PAD = 20 // keep floating images this far from the screen edges…
 const PAD_TOP = 80 // …below the CXYZ row…
-const PAD_BOTTOM = 20 // …and above Exit
+const PAD_BOTTOM = 20 // …and the bottom edge
+/** Floating images: desktop shows up to 3, 360–600px wide; phones up to 6, 200–600px. */
 const floatRules = () =>
-  window.innerWidth > 768 ? { max: 3, minW: 360, maxW: 720 } : { max: 6, minW: 200, maxW: 800 }
+  window.innerWidth > 768 ? { max: 3, minW: 360, maxW: 600 } : { max: 6, minW: 200, maxW: 600 }
 const MAX_ROLL_S = 2 // longest roll, like the old pool balls
 
 type Float = { key: string; image: SanityImage; x: number; y: number; w: number; h: number }
@@ -135,12 +136,13 @@ function World() {
   const ballRef = useRef<HTMLDivElement>(null)
   const aimRef = useRef<SVGLineElement>(null)
   const rolling = useRef(false) // ball moving → no aiming line
-  const aimOk = useRef(false) // mouse is over the picture (not over CXYZ / circle / Exit)
+  const aimOk = useRef(false) // pointer is aiming (mouse over the picture, or a touch being held)
   const updateAim = () => {
     if (aimRef.current) aimRef.current.style.visibility = aimOk.current && !rolling.current ? 'visible' : 'hidden'
   }
   const pos = useRef({ x: 0, y: 0 })
   const raf = useRef(0)
+  const shownEntry = useRef(-1) // which image is showing (for tilt: only change when a different one wins)
   const [shown, setShown] = useState<Shown | null>(null)
 
   const radius = () => (ballRef.current?.offsetWidth ?? 60) / 2
@@ -163,6 +165,7 @@ function World() {
     (e: number) => {
       const entry = entries[e]
       if (!entry) return
+      shownEntry.current = e
       const others = shuffle(imagesOf(projects[entry.project]).filter((im) => im.asset?._ref !== entry.image.asset?._ref))
       setShown((s) => ({
         id: (s?.id ?? 0) + 1,
@@ -228,6 +231,77 @@ function World() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setWorld])
 
+  // tilt (phones): the ball rolls "downhill" like a marble. When it comes to rest,
+  // the nearest image shows (only if it's a different one). Taps still shoot.
+  useEffect(() => {
+    const g = { x: 0, y: 0 }
+    let hasTilt = false
+    const onTilt = (e: DeviceOrientationEvent) => {
+      if (e.beta == null || e.gamma == null) return
+      hasTilt = true
+      const rad = Math.PI / 180
+      let gx = Math.sin(e.gamma * rad) // left–right
+      let gy = Math.sin(e.beta * rad) // front–back
+      // turn the phone's axes into screen directions when it's held sideways
+      const angle = screen.orientation?.angle ?? 0
+      if (angle === 90) [gx, gy] = [gy, -gx]
+      else if (angle === 270 || angle === -90) [gx, gy] = [-gy, gx]
+      else if (angle === 180) [gx, gy] = [-gx, -gy]
+      g.x = gx
+      g.y = gy
+    }
+    window.addEventListener('deviceorientation', onTilt)
+
+    const ACCEL = 1800 // px/s² when tilted all the way
+    const DEAD = 0.06 // ignore tilts under ~3.5° so the ball can rest on a slightly uneven hand
+    const FRICTION = 0.35 // speed kept per second (lower = stops sooner)
+    const BOUNCE = 0.4 // speed kept when hitting an edge
+    const v = { x: 0, y: 0 }
+    let last = 0
+    let moved = false
+    let still = 0
+    let frame = 0
+    const loop = (now: number) => {
+      frame = requestAnimationFrame(loop)
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0
+      last = now
+      if (!hasTilt || !dt || rolling.current) {
+        v.x = v.y = 0 // a tap-shot is playing: let it finish
+        return
+      }
+      const ax = Math.abs(g.x) > DEAD ? g.x * ACCEL : 0
+      const ay = Math.abs(g.y) > DEAD ? g.y * ACCEL : 0
+      const keep = Math.pow(FRICTION, dt)
+      v.x = (v.x + ax * dt) * keep
+      v.y = (v.y + ay * dt) * keep
+      const r = radius()
+      const W = window.innerWidth
+      const H = window.innerHeight
+      let x = pos.current.x + v.x * dt
+      let y = pos.current.y + v.y * dt
+      if (x < r) { x = r; v.x = -v.x * BOUNCE }
+      if (x > W - r) { x = W - r; v.x = -v.x * BOUNCE }
+      if (y < r) { y = r; v.y = -v.y * BOUNCE }
+      if (y > H - r) { y = H - r; v.y = -v.y * BOUNCE }
+      place(x, y)
+      // settled: show whatever image it stopped on
+      if (Math.hypot(v.x, v.y) > 25) {
+        moved = true
+        still = 0
+      } else if (moved && (still += dt) > 0.5) {
+        moved = false
+        const i = nearest(x, y)
+        if (i >= 0 && i !== shownEntry.current) show(i)
+      }
+    }
+    frame = requestAnimationFrame(loop)
+    return () => {
+      window.removeEventListener('deviceorientation', onTilt)
+      cancelAnimationFrame(frame)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nearest, show])
+
   const shoot = (tx: number, ty: number) => {
     cancelAnimationFrame(raf.current)
     rolling.current = true
@@ -274,22 +348,64 @@ function World() {
     raf.current = requestAnimationFrame(tick)
   }
 
-  // dotted aiming line from the ball to the mouse (hidden over CXYZ / circle / Exit, and on touch screens)
+  // dotted aiming line from the ball to the pointer.
+  //  Mouse: shows whenever the mouse is over the picture (not over CXYZ / World).
+  //  Touch: press and hold ~0.35s → the line appears; drag to aim; let go to shoot.
+  //         A quick tap still shoots straight away, like a click.
+  const hold = useRef<{ timer: number; aiming: boolean; skipClick: boolean }>({ timer: 0, aiming: false, skipClick: false })
+  const aimAt = (x: number, y: number) => {
+    aimRef.current?.setAttribute('x2', String(x))
+    aimRef.current?.setAttribute('y2', String(y))
+  }
+  const onDown = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse' || (e.target as HTMLElement).closest('a, button')) return
+    clearTimeout(hold.current.timer)
+    const { clientX: x, clientY: y } = e
+    hold.current.timer = window.setTimeout(() => {
+      hold.current.aiming = true
+      aimAt(x, y)
+      aimOk.current = true
+      updateAim()
+    }, 350)
+  }
   const onMove = (e: React.PointerEvent) => {
-    const line = aimRef.current
-    if (!line) return
+    if (e.pointerType !== 'mouse') {
+      if (hold.current.aiming) aimAt(e.clientX, e.clientY)
+      return
+    }
     const overUi = !!(e.target as HTMLElement).closest('a, button')
-    aimOk.current = e.pointerType === 'mouse' && !overUi
-    line.setAttribute('x2', String(e.clientX))
-    line.setAttribute('y2', String(e.clientY))
+    aimOk.current = !overUi
+    aimAt(e.clientX, e.clientY)
     updateAim()
   }
-  const onLeave = () => {
+  const onUp = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') return
+    clearTimeout(hold.current.timer)
+    if (!hold.current.aiming) return // quick tap: the click below shoots
+    hold.current.aiming = false
+    hold.current.skipClick = true // this touch already shot; ignore the click that follows
+    aimOk.current = false
+    shoot(e.clientX, e.clientY) // hides the line while rolling
+    updateAim()
+  }
+  const onCancel = () => {
+    clearTimeout(hold.current.timer)
+    hold.current.aiming = false
     aimOk.current = false
     updateAim()
   }
+  const onLeave = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return
+    aimOk.current = false
+    updateAim()
+  }
+  useEffect(() => () => clearTimeout(hold.current.timer), [])
 
   const onClick = (e: React.MouseEvent) => {
+    if (hold.current.skipClick) {
+      hold.current.skipClick = false
+      return
+    }
     if ((e.target as HTMLElement).closest('a, button')) return
     shoot(e.clientX, e.clientY)
   }
@@ -297,7 +413,16 @@ function World() {
   const src = (image: SanityImage, w: number) => urlFor(image).width(Math.min(2400, Math.round(w * 2))).url()
 
   return (
-    <div className="world" onClick={onClick} onPointerMove={onMove} onPointerLeave={onLeave}>
+    <div
+      className="world"
+      onClick={onClick}
+      onPointerDown={onDown}
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+      onPointerCancel={onCancel}
+      onPointerLeave={onLeave}
+      onContextMenu={(e) => e.preventDefault()} // no long-press menu on phones
+    >
       {shown && (
         <div className="world__scene" key={shown.id}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

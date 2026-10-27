@@ -11,11 +11,21 @@ import type { Project } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
 import { Shot, TopRow } from './Shared'
 
+/** Thin horizontal arrow (← or →). */
+function HArrow({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg className="h-arrow" width="20" height="14" viewBox="0 0 20 14" aria-hidden style={dir === 'right' ? { scale: '-1 1' } : undefined}>
+      <path d="M19 7 H1 M7 1 L1 7 L7 13" fill="none" stroke="currentColor" strokeWidth="1" />
+    </svg>
+  )
+}
+
 export function ProjectDetail({ project }: { project: Project }) {
   const { projects, setActiveIndex } = useProjects()
   const media = project.media ?? []
   const [current, setCurrent] = useState(0)
   const frames = useRef<(HTMLDivElement | null)[]>([])
+  const headRef = useRef<HTMLDivElement>(null)
     // this project's background colour (Studio), with black or white text — whichever reads better
   useEffect(() => {
     const bg = project.background
@@ -89,17 +99,39 @@ export function ProjectDetail({ project }: { project: Project }) {
 
   const goTo = (i: number) => {
     const el = frames.current[i]
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' })
+    if (!el) return
+    // phones: the text sits on top of the images, so stop the image just under it
+    const head = window.matchMedia('(max-width: 768px)').matches ? headRef.current : null
+    const offset = head ? head.offsetHeight : 0
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' })
   }
+
+  // previous / next project (wraps around)
+  const here = projects.findIndex((p) => p._id === project._id)
+  const prev = projects[(here - 1 + projects.length) % projects.length]
+  const next = projects[(here + 1) % projects.length]
 
   const caption = media[current]?.caption
 
   return (
     <main className="detail grid">
-      <div className="side side--fixed">
+      <div className="side side--fixed" ref={headRef}>
         <TopRow />
           <div className="side__row detail__meta">
-            <h1 className="detail__title">{project.title}</h1>
+            {/* title; on phones: red, centred, with ← → to the previous / next project */}
+            <div className="detail__nav">
+              {projects.length > 1 && (
+                <Link href={`/projects/${prev.slug}`} className="detail__arrow" aria-label={`Previous project: ${prev.title}`}>
+                  <HArrow dir="left" />
+                </Link>
+              )}
+              <h1 className="detail__title">{project.title}</h1>
+              {projects.length > 1 && (
+                <Link href={`/projects/${next.slug}`} className="detail__arrow" aria-label={`Next project: ${next.title}`}>
+                  <HArrow dir="right" />
+                </Link>
+              )}
+            </div>
             {media.length > 1 && (
               <nav className="detail__pages" aria-label="Images">
                 {media.map((m, i) => (

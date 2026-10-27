@@ -20,7 +20,7 @@ import { TopRow } from './Shared'
 
 const PAD = 20 // keep floating images this far from the screen edges…
 const PAD_TOP = 80 // …below the CXYZ row…
-const PAD_BOTTOM = 70 // …and above Exit
+const PAD_BOTTOM = 20 // …and above Exit
 const MAX_FLOATS = 6
 const MIN_W = 200
 const MAX_W = 600
@@ -332,9 +332,6 @@ function World() {
           <TopRow />
         </div>
       </div>
-      <button type="button" className="jump world__exit" onClick={() => setWorld(false)}>
-        Exit
-      </button>
     </div>
   )
 }

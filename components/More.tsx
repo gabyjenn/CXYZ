@@ -199,7 +199,7 @@ export function More({ information, news, log, settings }: Props) {
       )}
     </section>
 
-    {/* footer: © name year  ·  downloads (CV / PDF Portfolio) */}
+    {/* footer: © name year  ·  CV / Portfolio (PDFs open in a new tab to view) */}
     <footer className="foot grid">
       <p className="foot__copy">
         © {settings.copyright ? `${settings.copyright} ` : ''}
@@ -209,15 +209,15 @@ export function More({ information, news, log, settings }: Props) {
         <ul className="foot__links">
           {settings.cvPdfUrl && (
             <li>
-              <a href={`${settings.cvPdfUrl}?dl=`} download>
+              <a href={settings.cvPdfUrl} target="_blank" rel="noreferrer">
                 CV
               </a>
             </li>
           )}
           {settings.portfolioPdfUrl && (
             <li>
-              <a href={`${settings.portfolioPdfUrl}?dl=`} download>
-                PDF Portfolio
+              <a href={settings.portfolioPdfUrl} target="_blank" rel="noreferrer">
+                Portfolio
               </a>
             </li>
           )}

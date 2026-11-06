@@ -108,12 +108,14 @@ body { margin: 0; }
 .site a { color: inherit; text-decoration: none; }
 .site a:hover,
 .site button:hover,
-.site [role='button']:hover { color: var(--hover); }
+.site [role='button']:hover { opacity: 0.5; }
 .site a,
 .site button,
 .site [role='button'] {
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, opacity 0.3s ease;
 }
+/* the big home image is a link too, but shouldn't fade on hover */
+.site .hero__media:hover { opacity: 1; }
 .site button, .site textarea, .site input {
   font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; border-radius: 0; text-align: left;
 }
@@ -150,14 +152,11 @@ body { margin: 0; }
 .side__content { grid-column: 2 / -1; min-width: 0; }
 
 .site .world-toggle { color: var(--fg); }
-.site .world-toggle:hover { color: var(--hover); }
-.site .logo[aria-current='true'],
 .site .world-toggle[aria-pressed='true'] { color: var(--hover); }
 
 /* Lists where one item is "active": grey, the active one black */
 .site .pick { color: var(--muted); }
 .site .pick[aria-current='true'] { color: var(--fg); }
-.site .pick:hover { color: var(--hover); }
 
 /* Project titles + "See More" (col 3 when the title fits in col 2, otherwise right after it) */
 .project-line { display: flex; column-gap: var(--gap); align-items: baseline; }

@@ -77,13 +77,13 @@ export function Arrow({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
 /**
  * One image or video, as big as fits in (its column) × (screen height − 40px),
  * keeping its proportions, pushed to the right edge.
- * PDFs aren't shown on the page: just a download link.
+ * PDFs aren't shown on the page: just a link that opens them in a new tab.
  */
 export function Shot({ item, eager }: { item: MediaItem; eager?: boolean }) {
   if (item._type === 'pdfItem') {
     return item.fileUrl ? (
-      <a className="shot-download" href={`${item.fileUrl}?dl=`} download>
-        Download PDF{item.caption ? `: ${item.caption}` : ''}
+      <a className="shot-download" href={item.fileUrl} target="_blank" rel="noreferrer">
+        View PDF{item.caption ? `: ${item.caption}` : ''}
       </a>
     ) : null
   }

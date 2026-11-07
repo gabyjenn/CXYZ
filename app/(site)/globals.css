@@ -34,7 +34,7 @@
   --fg: #000;
   --muted: #D8D8D8;        /* inactive list items, caption, pagination */
   --dim: 0.4;
-  --hover: #ff0000;
+  --hover: #00C6E0;;
 
   --pad-x: 20px;           /* left margin (and right, for text) */
   --pad-top: 20px;         /* space above row 1 */
@@ -108,7 +108,7 @@ body { margin: 0; }
 .site a { color: inherit; text-decoration: none; }
 .site a:hover,
 .site button:hover,
-.site [role='button']:hover { opacity: 0.5; }
+.site [role='button']:hover { color: var(--hover); }
 .site a,
 .site button,
 .site [role='button'] {
@@ -152,10 +152,11 @@ body { margin: 0; }
 .side__content { grid-column: 2 / -1; min-width: 0; }
 
 .site .world-toggle { color: var(--fg); }
-.site .world-toggle[aria-pressed='true'] { color: var(--hover); }
+.site .world-toggle[aria-pressed='true'] { color: #ff0000; }
 
 /* Lists where one item is "active": grey, the active one black */
 .site .pick { color: var(--muted); }
+.site .pick:hover { color: var(--hover); }
 .site .pick[aria-current='true'] { color: var(--fg); }
 
 /* Project titles + "See More" (col 3 when the title fits in col 2, otherwise right after it) */

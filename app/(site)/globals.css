@@ -149,7 +149,7 @@ body { margin: 0; }
   align-items: start;
 }
 .side__label { grid-column: 1; }
-.top-row { margin-bottom: 40px; }
+.top-row { margin-bottom: 60px; }
 .side__content { grid-column: 2 / -1; min-width: 0; }
 
 .site .world-toggle { color: var(--fg); }

@@ -353,9 +353,10 @@ body { margin: 0; }
   z-index: 10;
 }
 .detail__meta { display: block; }      
-.detail__arrow { display: none; }       
+.detail__arrow { display: none; }       /* prev / next project: phones only */
+.detail__back { white-space: nowrap; }
 .h-arrow { display: block; }
-.detail__caption { color: var(--muted); margin-top: 40px; }
+.site .detail__caption { color: var(--muted); margin-top: 40px; }   /* .site: beats the `.site p { margin: 0 }` reset */
 .detail__pages { display: flex; flex-wrap: wrap; column-gap: 0.35em; }
 .detail { align-items: start; animation: fade-in 1s ease; }   /* project page fades in */
 @keyframes fade-in { from { opacity: 0; } }
@@ -363,7 +364,80 @@ body { margin: 0; }
   grid-column: 5 / -1;          /* was 4 / -1 */
   grid-row: 1;
   margin-right: calc(-1 * var(--pad-x));
+  padding-top: 20px;            /* 20px above the first image / the grid */
 }
+
+/* Title · Go Back · view toggle (Go Back starts in col 2 when the title fits in col 1) */
+.detail__nav {
+  display: grid;
+  grid-template-columns: minmax(var(--col), auto) auto 1fr;
+  column-gap: var(--gap);
+  align-items: center;
+}
+.detail__title { grid-row: 1; }
+.view-toggle { display: flex; gap: 10px; justify-self: end; }   /* right edge of the text column */
+.view-toggle svg { display: block; }
+
+/* grid mode: square thumbnails, 10px apart */
+.detail__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+  padding-right: var(--pad-x);
+}
+.site .detail__tile {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  padding: 0;
+}
+.detail__tile > img,
+.detail__tile > video,
+.detail__tile > iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  background-size: cover;
+  pointer-events: none;
+}
+.site .detail__tile--pdf {
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid var(--muted);
+}
+
+/* grid mode: one image full screen — 20px above and below, proportions kept */
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 95;                       /* above the page, below the letter drawings */
+  background: rgba(0, 0, 0, 0.5);    /* the page dims behind */
+  display: grid;
+  place-items: center;
+  animation: fade-in 0.3s ease;
+}
+.zoom__media {
+  width: min(calc(100vw - 120px), calc((100svh - 40px) * var(--ar, 1.5)));
+  aspect-ratio: var(--ar, 1.5);
+}
+.zoom__media > img,
+.zoom__media > video,
+.zoom__media > iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: 0;
+  background-size: cover;
+}
+.site .zoom__close { position: absolute; top: 20px; right: 20px; color: #fff; }
+.zoom__close svg { display: block; }
 .detail__frame .shot { margin-left: 0; }
 .detail__frame {
   padding-bottom: var(--shot-bottom);
@@ -499,15 +573,20 @@ body { margin: 0; }
     grid-template-columns: auto 1fr auto;
     align-items: center;
   }
-  .detail__arrow { display: block; }
+  .detail__arrow { display: block; grid-row: 1; }
   .detail__arrow:first-child { grid-column: 1; }
-  .detail__arrow:last-child { grid-column: 3; }
+  .detail__title + .detail__arrow { grid-column: 3; }
   .detail__title { grid-column: 2; text-align: center; color: var(--hover); }
+  .detail__back { display: none; }                 /* phones: CXYZ and the arrows do the job */
+  .view-toggle { grid-column: 1 / -1; grid-row: 2; justify-self: center; margin-top: 20px; }
   .detail__pages { margin-top: 20px; justify-content: center; }
   .detail__caption { text-align: center; }
 
   /* images: edge to edge, 40px apart */
-  .detail__media { grid-column: 1 / -1; grid-row: auto; margin: 0 calc(-1 * var(--pad-x)); }
+  .detail__media { grid-column: 1 / -1; grid-row: auto; margin: 0 calc(-1 * var(--pad-x)); padding-top: 0; }
+  .detail__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 var(--pad-x); }
+  .zoom__media { width: min(calc(100vw - 20px), calc((100svh - 40px) * var(--ar, 1.5))); }
+  .site .zoom__close { top: 10px; right: 10px; }
   .detail__frame { padding-bottom: 40px; }
   .site .jump--fixed { display: none; }   /* no Go Back on phones: CXYZ and the arrows do the job */
 

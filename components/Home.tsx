@@ -6,9 +6,11 @@ import type { MediaItem, Settings } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
 import { Shot, TopRow, setThemeColor, siteBg } from './Shared'
 import { QuestionPop } from './QuestionPop'
+import { useRouter } from 'next/navigation'
 
 export function Home({ settings }: { settings: Settings }) {
   const { projects, activeIndex, setActiveIndex } = useProjects()
+  const router = useRouter()
   const active = projects[activeIndex]
   const jumpRef = useRef<HTMLButtonElement>(null)
   const [down, setDown] = useState(false)
@@ -65,7 +67,7 @@ export function Home({ settings }: { settings: Settings }) {
                     type="button"
                     className="pick"
                     aria-current={i === activeIndex}
-                    onClick={() => setActiveIndex(i)}
+                    onClick={() => (i === activeIndex ? router.push(`/projects/${p.slug}`) : setActiveIndex(i))}
                   >
                     {p.title}
                   </button>

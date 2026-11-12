@@ -305,6 +305,8 @@ body { margin: 0; }
   grid-template-columns: subgrid;
   align-items: start;
 }
+.more__row:has(.cv-list) .more__list { grid-column: 2 / span 2; }
+.more__content:has(.cv-list) { grid-column: 4 / span 6; }
 .about { display: flex; flex-direction: column; min-height: calc(100svh - (var(--lh) * var(--fs) + 30px)); }
 .foot {
   margin-top: auto;
@@ -316,6 +318,7 @@ body { margin: 0; }
 .foot__links { grid-column: 3 / span 2; }
 .more__label { grid-column: 1; }
 .more__list { grid-column: 2 / span 3; }
+.more__list.news-list { grid-column: 2 / span 2; }
 .more__content {
   grid-column: 5 / span 4;
   overflow: hidden;
@@ -330,6 +333,7 @@ body { margin: 0; }
 
 .news-list > li { display: block; }
 .news-list > li + li { margin-top: 1em; }
+.news-list { margin-right: 20px; }
 
 /* CV entries inside cols 5–8: year in col 5, text in cols 6–8 */
 .cv-list { display: grid; grid-template-columns: subgrid; row-gap: var(--gap); }
@@ -340,7 +344,7 @@ body { margin: 0; }
 .more__content .more__fade,
 .more__content .cv-list { grid-column: 1 / -1; }
 .cv-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
-.cv-row__year { grid-column: 1; opacity: var(--dim); font-variant-numeric: tabular-nums; }
+.cv-row__year { grid-column: 1; text-align: right; white-space: nowrap; padding-right: 10px; opacity: var(--dim); font-variant-numeric: tabular-nums; }
 .cv-row__text { grid-column: 2 / -1; }
 
 /* ─────────────────────────────────────────────────────────────
@@ -367,7 +371,7 @@ body { margin: 0; }
 }
 
 /* top row on the project page: CXYZ · WORLD · view toggle (col 3), then 100px down to the title */
-.top-row__extra { grid-column: 3; align-self: center; }
+.top-row__extra { grid-column: 3; align-self: center; justify-self: end; }
 .top-row:has(.top-row__extra) .side__content { grid-column: 2; }
 .side--fixed .top-row { margin-bottom: 60px; }   /* + the 40px row gap = 100px */
 .view-toggle { display: flex; gap: 10px; }
@@ -413,7 +417,7 @@ body { margin: 0; }
   position: fixed;
   inset: 0;
   z-index: 95;                       /* above the page, below the letter drawings */
-  background: rgba(0, 0, 0, 0.5);    /* the page dims behind */
+  background: rgba(0, 0, 0, 0.8);    /* the page dims behind */
   display: grid;
   place-items: center;
   animation: fade-in 0.3s ease;

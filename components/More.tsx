@@ -126,9 +126,9 @@ export function More({ information, news, log, settings }: Props) {
               information.bio && <PortableText value={information.bio} components={ptComponents} />
             ) : (
               <ul className="cv-list">
-                {visible.map((e) => (
+                {visible.map((e, i) => (
                   <li key={e._key} className="cv-row">
-                    <span className="cv-row__year">{e.year}</span>
+                    <span className="cv-row__year">{i === 0 || visible[i - 1].year !== e.year ? e.year : ''}</span>
                     <span className="cv-row__text">
                       {e.link ? (
                         <a href={e.link} target="_blank" rel="noreferrer">

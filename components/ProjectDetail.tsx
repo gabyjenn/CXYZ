@@ -249,8 +249,8 @@ export function ProjectDetail({ project }: { project: Project }) {
             <MediaView key={media[zoom]._key} item={media[zoom]} eager />
           </div>
           <button type="button" className="zoom__close" aria-label="Close" onClick={() => setZoom(null)}>
-            <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
-              <path d="M1 1 L23 23 M23 1 L1 23" fill="none" stroke="currentColor" strokeWidth="1" />
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
+              <path d="M1 1 L15 15 M15 1 L1 15" fill="none" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
         </div>

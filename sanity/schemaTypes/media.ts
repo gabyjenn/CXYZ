@@ -4,7 +4,7 @@ const caption = defineField({
   name: 'caption',
   title: 'Caption',
   type: 'string',
-  description: 'Optional. Shown under the frame (placement still TBD in design).',
+  description: 'Optional. Put *asterisks* around words to show them in italics, e.g. Chapel Street, *Queer Lives*, 2024',
 })
 
 export const imageItem = defineType({

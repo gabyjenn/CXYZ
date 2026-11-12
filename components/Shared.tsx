@@ -66,6 +66,17 @@ export function siteBg() {
   return (site && getComputedStyle(site).getPropertyValue('--bg').trim()) || '#000'
 }
 
+/** Caption text: words wrapped in *asterisks* show in italics, e.g. “Chapel Street, *Queer Lives*, 2024”. */
+export function Caption({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*[^*]+\*)/g).map((part, i) =>
+        part.length > 2 && part.startsWith('*') && part.endsWith('*') ? <em key={i}>{part.slice(1, -1)}</em> : part
+      )}
+    </>
+  )
+}
+
 /** Thin 1px arrow. */
 export function Arrow({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
   const rotate = { down: 0, up: 180, left: 90, right: -90 }[dir]
@@ -85,7 +96,7 @@ export function Shot({ item, eager }: { item: MediaItem; eager?: boolean }) {
   if (item._type === 'pdfItem') {
     return item.fileUrl ? (
       <a className="shot-download" href={item.fileUrl} target="_blank" rel="noreferrer">
-        View PDF{item.caption ? `: ${item.caption}` : ''}
+        View PDF{item.caption && <>: <Caption text={item.caption} /></>}
       </a>
     ) : null
   }

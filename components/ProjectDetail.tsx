@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Project } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
-import { Shot, TopRow, setThemeColor, siteBg } from './Shared'
+import { Caption, Shot, TopRow, setThemeColor, siteBg } from './Shared'
 import { MediaView, aspectOf } from './Media'
 
 /** Thin horizontal arrow (← or →). */
@@ -202,7 +202,7 @@ export function ProjectDetail({ project }: { project: Project }) {
                 ))}
               </nav>
             )}
-            {caption && <p className="detail__caption">{caption}</p>}
+            {caption && <p className="detail__caption"><Caption text={caption} /></p>}
           </div>
       </div>
 
@@ -226,7 +226,7 @@ export function ProjectDetail({ project }: { project: Project }) {
             m._type === 'pdfItem' ? (
               m.fileUrl && (
                 <a key={m._key} className="detail__tile detail__tile--pdf" href={m.fileUrl} target="_blank" rel="noreferrer">
-                  View PDF{m.caption ? `: ${m.caption}` : ''}
+                  View PDF{m.caption && <>: <Caption text={m.caption} /></>}
                 </a>
               )
             ) : (

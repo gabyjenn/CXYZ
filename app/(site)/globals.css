@@ -149,6 +149,7 @@ body { margin: 0; }
   align-items: start;
 }
 .side__label { grid-column: 1; }
+.top-row { margin-bottom: 40px; }
 .side__content { grid-column: 2 / -1; min-width: 0; }
 
 .site .world-toggle { color: var(--fg); }
@@ -327,7 +328,7 @@ body { margin: 0; }
 .more__years { display: none; }   
 .log-inline { display: none; } 
 
-.news-list > li { display: flex; flex-direction: column; }
+.news-list > li { display: block; }
 .news-list > li + li { margin-top: 1em; }
 
 /* CV entries inside cols 5–8: year in col 5, text in cols 6–8 */
@@ -354,7 +355,7 @@ body { margin: 0; }
 .detail__meta { display: block; }      
 .detail__arrow { display: none; }       
 .h-arrow { display: block; }
-.detail__caption { color: var(--muted); }
+.detail__caption { color: var(--muted); margin-top: 40px; }
 .detail__pages { display: flex; flex-wrap: wrap; column-gap: 0.35em; }
 .detail { align-items: start; animation: fade-in 1s ease; }   /* project page fades in */
 @keyframes fade-in { from { opacity: 0; } }
@@ -492,6 +493,7 @@ body { margin: 0; }
     padding: var(--pad-top) var(--pad-x) 40px;
     background: linear-gradient(to bottom, var(--bg) calc(100% - 36px), transparent);
   }
+  .side--fixed .top-row { margin-bottom: 0; }
   .detail__nav {
     display: grid;
     grid-template-columns: auto 1fr auto;

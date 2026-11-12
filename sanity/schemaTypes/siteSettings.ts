@@ -52,6 +52,22 @@ export const siteSettings = defineType({
       options: { accept: 'application/pdf' },
     }),
     defineField({
+      name: 'cvLabel',
+      title: 'CV link text',
+      type: 'string',
+      group: 'footer',
+      description: 'The footer link to the CV PDF. Empty = “CV”.',
+      initialValue: 'CV',
+    }),
+    defineField({
+      name: 'portfolioLabel',
+      title: 'Portfolio link text',
+      type: 'string',
+      group: 'footer',
+      description: 'The footer link to the Portfolio PDF. Empty = “Portfolio”.',
+      initialValue: 'Portfolio',
+    }),
+    defineField({
       name: 'cvPdf',
       title: 'CV PDF (optional)',
       type: 'file',

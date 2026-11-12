@@ -54,7 +54,8 @@ export const SETTINGS_QUERY = defineQuery(`
   *[_id == "siteSettings"][0]{
     siteTitle, theme, carouselInterval, copyright, email, instagram, substack,
     "portfolioPdfUrl": portfolioPdf.asset->url,
-    "cvPdfUrl": cvPdf.asset->url,
+    "cvPdfUrl": cvPdf.asset->url, cvLabel,
+    portfolioLabel,
     // list of questions; falls back to the old single question field
     "questions": select(count(questions[defined(@) && @ != ""]) > 0 => questions[defined(@) && @ != ""], defined(question) => [question], []),
     questionThanks

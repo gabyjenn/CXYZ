@@ -4,7 +4,7 @@
  * Text content under the first screen. Each row:
  *   col 1 label · col 2–4 list (grey, active one black) · col 5–8 the active item
  */
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { PortableText } from '@portabletext/react'
 import type { Information, LogEntry, NewsItem, Settings } from '@/sanity/types'
 import { CV_SECTIONS } from '@/lib/cvSections'
@@ -151,19 +151,32 @@ export function More({ information, news, log, settings }: Props) {
         <div className="more__row">
           <h2 className="more__label">News</h2>
           <ul className="more__list news-list">
-            {news.map((n) => (
-              <li key={n._id}>
-                {n.link ? (
-                  <a href={n.link} target="_blank" rel="noreferrer">
+            {news.map((n) => {
+              // one line: Title, Venue, Date
+              const parts = [
+                n.link ? (
+                  <a key="t" href={n.link} target="_blank" rel="noreferrer">
                     {n.title}
                   </a>
                 ) : (
-                  <span>{n.title}</span>
-                )}
-                {n.venue && <span>{n.venue}</span>}
-                <time dateTime={n.startsAt}>{formatNewsDate(n.startsAt, n.endsAt, n.showTime)}</time>
-              </li>
-            ))}
+                  <span key="t">{n.title}</span>
+                ),
+                n.venue && <span key="v">{n.venue}</span>,
+                <time key="d" dateTime={n.startsAt}>
+                  {formatNewsDate(n.startsAt, n.endsAt, n.showTime)}
+                </time>,
+              ].filter(Boolean)
+              return (
+                <li key={n._id}>
+                  {parts.map((part, i) => (
+                    <Fragment key={i}>
+                      {i > 0 && ', '}
+                      {part}
+                    </Fragment>
+                  ))}
+                </li>
+              )
+            })}
           </ul>
         </div>
       )}
@@ -210,14 +223,14 @@ export function More({ information, news, log, settings }: Props) {
           {settings.cvPdfUrl && (
             <li>
               <a href={settings.cvPdfUrl} target="_blank" rel="noreferrer">
-                CV
+                {settings.cvLabel || 'CV'}
               </a>
             </li>
           )}
           {settings.portfolioPdfUrl && (
             <li>
               <a href={settings.portfolioPdfUrl} target="_blank" rel="noreferrer">
-                Portfolio
+                {settings.portfolioLabel || 'Portfolio'}
               </a>
             </li>
           )}

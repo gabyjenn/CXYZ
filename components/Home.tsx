@@ -21,17 +21,21 @@ export function Home({ settings }: { settings: Settings }) {
     document.documentElement.style.background = ''
     setThemeColor(siteBg()) // phone browser's top bar back to black
   }, [])
-
-  // the project's first image (exactly as on its project page); falls back to its first video,
-  // then to the thumbnail override
-  const first: MediaItem | undefined = active
-    ? active.media?.find((m) => m._type === 'imageItem' && m.image?.asset) ??
-      active.media?.find((m) => m._type === 'videoItem') ??
-      (active.thumbnail?.asset
-        ? { _key: 'thumb', _type: 'imageItem', image: { ...active.thumbnail, dimensions: { width: 0, height: 0, aspectRatio: active.thumbnailAr } } }
-        : undefined)
-    : undefined
-
+  // a random image from the active project, picked in the browser, so every visit
+  // (and every click on a project title) can show a different one
+  const [pick, setPick] = useState<number | null>(null)
+  useEffect(() => {
+    setPick(Math.random())
+  }, [active?._id])
+  const images = active?.media?.filter((m) => m._type === 'imageItem' && m.image?.asset) ?? []
+  const first: MediaItem | undefined =
+    !active || pick === null
+      ? undefined
+      : images[Math.floor(pick * images.length)] ??
+        active.media?.find((m) => m._type === 'videoItem') ??
+        (active.thumbnail?.asset
+          ? { _key: 'thumb', _type: 'imageItem', image: { ...active.thumbnail, dimensions: { width: 0, height: 0, aspectRatio: active.thumbnailAr } } }
+          : undefined)
   // "Read More" ↔ "Back to Top": flips once the first screen is half scrolled away
   useEffect(() => {
     const onScroll = () => setDown(window.scrollY > window.innerHeight / 2)
@@ -67,7 +71,7 @@ export function Home({ settings }: { settings: Settings }) {
                   </button>
                   {i === activeIndex && (
                     <Link href={`/projects/${p.slug}`} className="see-more">
-                      See More
+                      +
                     </Link>
                   )}
                 </li>
@@ -104,7 +108,7 @@ export function Home({ settings }: { settings: Settings }) {
 
       {active && first && (
         <Link href={`/projects/${active.slug}`} className="hero__media" aria-label={`${active.title}: see more`}>
-          <Shot key={active._id} item={first} eager />
+          <Shot key={first._key} item={first} eager />
         </Link>
       )}
 

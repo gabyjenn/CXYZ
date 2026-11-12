@@ -63,4 +63,6 @@ export type Settings = {
   cvPdfUrl?: string
   questions?: string[]
   questionThanks?: string
+  cvLabel?: string
+  portfolioLabel?: string
 }

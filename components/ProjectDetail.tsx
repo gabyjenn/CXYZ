@@ -2,8 +2,8 @@
 
 /**
  * Project page:
- *   cols 1–3 (stay put): CXYZ / WORLD, then  Title · Go Back · [full | grid] view toggle,
- *                        page numbers, caption
+ *   cols 1–3 (stay put): CXYZ · WORLD · [full | grid] view toggle, then 100px lower:
+ *                        title / page numbers / caption, 10px apart
  *   cols 5–12: the project's images —
  *     full mode: one under another, scroll to see more
  *     grid mode: square thumbnails; click one to see it full screen (× / Esc / click outside to close,
@@ -144,6 +144,17 @@ export function ProjectDetail({ project }: { project: Project }) {
     window.scrollTo({ top: 0 })
   }
 
+  const toggle = (
+    <div className="view-toggle" role="group" aria-label="View">
+      <button type="button" className="pick" aria-current={view === 'full'} aria-label="Full images" onClick={() => switchView('full')}>
+        <ViewIcon />
+      </button>
+      <button type="button" className="pick" aria-current={view === 'grid'} aria-label="Grid" onClick={() => switchView('grid')}>
+        <ViewIcon grid />
+      </button>
+    </div>
+  )
+
   const goTo = (i: number) => {
     if (view === 'grid') return setZoom(i) // grid mode: open that image full screen
     const el = frames.current[i]
@@ -164,7 +175,7 @@ export function ProjectDetail({ project }: { project: Project }) {
   return (
     <main className="detail grid">
       <div className="side side--fixed" ref={headRef}>
-        <TopRow />
+        <TopRow extra={toggle} />
           <div className="side__row detail__meta">
             {/* title; on phones: red, centred, with ← → to the previous / next project */}
             <div className="detail__nav">
@@ -179,17 +190,8 @@ export function ProjectDetail({ project }: { project: Project }) {
                   <HArrow dir="right" />
                 </Link>
               )}
-              <Link href="/" className="detail__back">
-                Go Back
-              </Link>
-              <div className="view-toggle" role="group" aria-label="View">
-                <button type="button" className="pick" aria-current={view === 'full'} aria-label="Full images" onClick={() => switchView('full')}>
-                  <ViewIcon />
-                </button>
-                <button type="button" className="pick" aria-current={view === 'grid'} aria-label="Grid" onClick={() => switchView('grid')}>
-                  <ViewIcon grid />
-                </button>
-              </div>
+              {/* phones: the toggle sits under the title instead of in the top row */}
+              <div className="view-toggle--phone">{toggle}</div>
             </div>
             {media.length > 1 && (
               <nav className="detail__pages" aria-label="Images">

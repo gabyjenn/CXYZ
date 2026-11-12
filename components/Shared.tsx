@@ -7,8 +7,8 @@ import type { MediaItem } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
 import { MediaView, aspectOf } from './Media'
 
-/** Row 1: "CXYZ" (home link) + "World", which opens/closes Picture World. On phones: CXYZ left, World right. */
-export function TopRow() {
+/** Row 1: "CXYZ" (home link) + "WORLD" (opens/closes Picture World) + optional extra in col 3. On phones: CXYZ left, WORLD right. */
+export function TopRow({ extra }: { extra?: React.ReactNode }) {
   const { world, setWorld } = useProjects()
   const onHome = usePathname() === '/'
   return (
@@ -27,9 +27,11 @@ export function TopRow() {
             setWorld(!world)
           }}
         >
-          World
+          WORLD
         </button>
       </div>
+      {/* optional third cell (project page: the view toggle) */}
+      {extra && <div className="top-row__extra">{extra}</div>}
     </div>
   )
 }

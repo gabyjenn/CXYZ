@@ -443,7 +443,19 @@ body { margin: 0; }
   padding-bottom: var(--shot-bottom);
   transition: opacity 0.8s ease;
 }
-.detail__frame.is-waiting { opacity: 0; }   /* below the screen, not seen yet */
+.detail__frame.is-waiting { opacity: 0; }
+
+/* video */
+.detail__tile > .video-still {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid var(--muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .detail__frame { transition: none; }
 }

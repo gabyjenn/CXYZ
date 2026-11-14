@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { MediaItem } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
-import { MediaView, aspectOf } from './Media'
+import { MediaView, aspectOf, type VideoMode } from './Media'
 
 /** Row 1: "CXYZ" (home link) + "WORLD" (opens/closes Picture World) + optional extra in col 3. On phones: CXYZ left, WORLD right. */
 export function TopRow({ extra }: { extra?: React.ReactNode }) {
@@ -92,8 +92,7 @@ export function Arrow({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
  * keeping its proportions, pushed to the right edge.
  * PDFs aren't shown on the page: just a link that opens them in a new tab.
  */
-export function Shot({ item, eager }: { item: MediaItem; eager?: boolean }) {
-  if (item._type === 'pdfItem') {
+export function Shot({ item, eager, video }: { item: MediaItem; eager?: boolean; video?: VideoMode }) {  if (item._type === 'pdfItem') {
     return item.fileUrl ? (
       <a className="shot-download" href={item.fileUrl} target="_blank" rel="noreferrer">
         View PDF{item.caption && <>: <Caption text={item.caption} /></>}
@@ -102,7 +101,7 @@ export function Shot({ item, eager }: { item: MediaItem; eager?: boolean }) {
   }
   return (
     <div className="shot" style={{ '--ar': aspectOf(item) } as React.CSSProperties}>
-      <MediaView item={item} eager={eager} />
+      <MediaView item={item} eager={eager} video={video} />
     </div>
   )
 }

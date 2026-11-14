@@ -110,7 +110,7 @@ export function Home({ settings }: { settings: Settings }) {
 
       {active && first && (
         <Link href={`/projects/${active.slug}`} className="hero__media" aria-label={`${active.title}: see more`}>
-          <Shot key={first._key} item={first} eager />
+          <Shot key={first._key} item={first} eager video="ambient" />
         </Link>
       )}
 

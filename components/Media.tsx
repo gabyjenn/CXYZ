@@ -38,23 +38,41 @@ function toEmbed(url: string) {
   return url
 }
 
-export function MediaView({ item, eager }: { item: MediaItem; eager?: boolean }) {
+/**
+ * How a video behaves:
+ *  'controls' (default) — doesn't play by itself; the browser's play/pause, sound, timeline
+ *                         and full-screen controls are shown
+ *  'ambient'            — plays silently on a loop with no controls (home page background)
+ *  'still'              — just the first frame / poster (grid thumbnails)
+ */
+export type VideoMode = 'controls' | 'ambient' | 'still'
+
+export function MediaView({ item, eager, video = 'controls' }: { item: MediaItem; eager?: boolean; video?: VideoMode }) {
   switch (item._type) {
     case 'imageItem':
       return <SanityImg image={item.image} sizes="(max-width: 768px) 100vw, 75vw" eager={eager} />
     case 'videoItem':
-      if (item.fileUrl)
+      if (item.fileUrl) {
+        const poster = item.poster?.asset ? urlFor(item.poster).width(1600).url() : undefined
+        if (video === 'ambient')
+          return <video src={item.fileUrl} poster={poster} autoPlay muted loop playsInline />
         return (
           <video
-            src={item.fileUrl}
-            poster={item.poster?.asset ? urlFor(item.poster).width(1600).url() : undefined}
-            autoPlay
-            muted
-            loop
+            // without a poster, "#t=0.1" makes phones show the first frame instead of a blank box
+            src={poster ? item.fileUrl : `${item.fileUrl}#t=0.1`}
+            poster={poster}
+            controls={video === 'controls'}
+            preload="metadata"
             playsInline
           />
         )
-      if (item.url) return <iframe src={toEmbed(item.url)} allow="autoplay; fullscreen" title={item.caption || 'Video'} />
+      }
+      if (item.url)
+        return video === 'still' ? (
+          <span className="video-still">{item.caption || 'Video'}</span>
+        ) : (
+          <iframe src={toEmbed(item.url)} allow="autoplay; fullscreen" title={item.caption || 'Video'} />
+        )
       return null
     case 'pdfItem':
       return null // PDFs are download links (see Shot in Shared.tsx)

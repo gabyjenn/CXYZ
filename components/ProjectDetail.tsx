@@ -231,7 +231,7 @@ export function ProjectDetail({ project }: { project: Project }) {
               )
             ) : (
               <button key={m._key} type="button" className="detail__tile" aria-label={`Image ${i + 1}`} onClick={() => setZoom(i)}>
-                <MediaView item={m} />
+                <MediaView item={m} video="still" />
               </button>
             )
           )}

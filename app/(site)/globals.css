@@ -618,7 +618,7 @@ body { margin: 0; }
   .detail__arrow { display: block; grid-row: 1; }
   .detail__arrow:first-child { grid-column: 1; }
   .detail__title + .detail__arrow { grid-column: 3; }
-  .detail__title { grid-column: 2; text-align: center; color: var(--hover); }
+  .detail__title { grid-column: 2; text-align: center;}
   .top-row__extra { display: none; }
   .view-toggle--phone { display: block; grid-column: 1 / -1; grid-row: 2; justify-self: center; margin-top: 20px; }
   .detail__pages { margin-top: 20px; justify-content: center; }

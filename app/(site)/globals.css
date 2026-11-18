@@ -456,6 +456,14 @@ body { margin: 0; }
   background-size: cover;
 }
 .site .zoom__close { position: absolute; top: 20px; right: 20px; color: #fff; }
+.zoom__close-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask: url('/cursors/close.svg') center / contain no-repeat;
+          mask: url('/cursors/close.svg') center / contain no-repeat;
+}
 .zoom__close svg { display: block; }
 .detail__frame .shot {
   margin-left: 0;

@@ -295,9 +295,7 @@ export function ProjectDetail({ project }: { project: Project }) {
             )}
           </div>
           <button type="button" className="zoom__close" aria-label="Close" onClick={() => setZoom(null)}>
-            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-              <path d="M1 1 L15 15 M15 1 L1 15" fill="none" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
+            <span className="zoom__close-icon" aria-hidden />
           </button>
         </div>
       )}

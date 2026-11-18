@@ -270,7 +270,7 @@ export function ProjectDetail({ project }: { project: Project }) {
               {/* Studio: "Show captions under thumbnails" (e.g. film titles) */}
               {project.gridCaptions && m.caption && (
                 <p className="detail__tile-caption">
-                  <Caption text={m.caption} />
+                  <Caption text={m.caption.replace(/\s*\n+\s*/g, ', ')} />
                 </p>
               )}
             </div>

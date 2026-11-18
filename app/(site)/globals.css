@@ -404,7 +404,7 @@ body { margin: 0; }
   padding-right: var(--pad-x);
 }
 .detail__cell { min-width: 0; }
-.site .detail__tile-caption { margin-top: 10px; } 
+.site .detail__tile-caption { margin-top: 10px; color: var(--muted); }
 .site .detail__tile {
   display: block;
   width: 100%;

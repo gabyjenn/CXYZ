@@ -359,7 +359,7 @@ body { margin: 0; }
 .detail__meta { display: block; }      
 .detail__arrow { display: none; }       /* prev / next project: phones only */
 .h-arrow { display: block; }
-.site .detail__caption { color: var(--muted); margin-top: 10px; }   /* .site: beats the `.site p { margin: 0 }` reset */
+.site .detail__caption { color: var(--muted); margin-top: 10px; white-space: pre-line; }
 .detail__pages { display: flex; flex-wrap: wrap; column-gap: 0.35em; margin-top: 10px; }   /* 10px under the title */
 .detail { align-items: start; animation: fade-in 1s ease; }   /* project page fades in */
 @keyframes fade-in { from { opacity: 0; } }

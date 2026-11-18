@@ -3,8 +3,9 @@ import { defineField, defineType } from 'sanity'
 const caption = defineField({
   name: 'caption',
   title: 'Caption',
-  type: 'string',
-  description: 'Optional. Put *asterisks* around words to show them in italics, e.g. Chapel Street, *Queer Lives*, 2024',
+  type: 'text',
+  rows: 2,
+  description: 'Optional. Press Enter for a new line. Put *asterisks* around words to show them in italics.',
 })
 
 export const imageItem = defineType({

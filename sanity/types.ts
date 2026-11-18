@@ -22,6 +22,9 @@ export type Project = {
   background?: string  
   worldX?: number
   worldY?: number
+  layout?: 'scroll' | 'carousel'
+  startInGrid?: boolean
+  gridCaptions?: boolean
 }
 
 export type CvEntry = { _key: string; year: string; text: string; detail?: string; link?: string }

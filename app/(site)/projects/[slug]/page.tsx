@@ -24,5 +24,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProjectPage({ params }: Props) {
   const project = await getProject((await params).slug)
   if (!project) notFound()
-  return <ProjectDetail project={project} />
+  return <ProjectDetail key={project._id} project={project} />
 }

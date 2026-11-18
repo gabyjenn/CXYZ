@@ -5,7 +5,8 @@
  *   cols 1–3 (stay put): CXYZ · WORLD · [full | grid] view toggle, then 100px lower:
  *                        title / page numbers / caption, 10px apart
  *   cols 5–12: the project's images —
- *     full mode: one under another, scroll to see more
+ *     full mode: one under another, scroll to see more — or, if the project is set to
+ *                "Carousel" in Studio, one at a time (click the left / right half, or ← →)
  *     grid mode: square thumbnails; click one to see it full screen (× / Esc / click outside to close,
  *                ← → keys to step through)
  */
@@ -13,7 +14,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { Project } from '@/sanity/types'
 import { useProjects } from './ProjectContext'
-import { Caption, Shot, TopRow, setThemeColor, siteBg } from './Shared'
+import { Caption, Shot, TopRow, setThemeColor, siteBg, useArrowCursors } from './Shared'
 import { MediaView, aspectOf } from './Media'
 
 /** Thin horizontal arrow (← or →). */
@@ -41,10 +42,14 @@ export function ProjectDetail({ project }: { project: Project }) {
   const [current, setCurrent] = useState(0)
   const frames = useRef<(HTMLDivElement | null)[]>([])
   const headRef = useRef<HTMLDivElement>(null)
-  const [view, setView] = useState<'full' | 'grid'>('full')
+  const [view, setView] = useState<'full' | 'grid'>(project.startInGrid ? 'grid' : 'full') // Studio: "Open in grid view"
   const viewRef = useRef(view)
   viewRef.current = view
   const [zoom, setZoom] = useState<number | null>(null) // grid mode: the image shown full screen
+  // Studio → Project → "Image layout": one under another (scroll) or one at a time (carousel)
+  const carousel = project.layout === 'carousel'
+  const step = (d: number) => setCurrent((c) => (c + d + media.length) % media.length)
+  useArrowCursors() // ← / → cursors for the carousel and the full-screen view
     // this project's background colour (Studio), with black or white text — whichever reads better
   useEffect(() => {
     const bg = project.background || '#ffffff' // no colour set in Studio → white page, black text
@@ -78,7 +83,7 @@ export function ProjectDetail({ project }: { project: Project }) {
   // current = the last image whose top has passed the middle of the screen
   useEffect(() => {
     const onScroll = () => {
-      if (viewRef.current === 'grid') return // grid mode: the page numbers follow the full-screen image
+      if (viewRef.current === 'grid' || carousel) return // grid / carousel: the page numbers follow the shown image
       const mid = window.innerHeight / 2
       let i = 0
       frames.current.forEach((el, k) => {
@@ -155,8 +160,21 @@ export function ProjectDetail({ project }: { project: Project }) {
     </div>
   )
 
+  // carousel: ← → keys step through the images (when the full-screen view isn't open)
+  useEffect(() => {
+    if (!carousel || view !== 'full') return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') step(1)
+      if (e.key === 'ArrowLeft') step(-1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carousel, view, media.length])
+
   const goTo = (i: number) => {
     if (view === 'grid') return setZoom(i) // grid mode: open that image full screen
+    if (carousel) return setCurrent(i) // carousel: show that image
     const el = frames.current[i]
     if (!el) return
     // phones: the text sits on top of the images, so stop the image just under it
@@ -193,7 +211,8 @@ export function ProjectDetail({ project }: { project: Project }) {
               {/* phones: the toggle sits under the title instead of in the top row */}
               <div className="view-toggle--phone">{toggle}</div>
             </div>
-            {media.length > 1 && (
+            {/* page numbers + caption: full view only (grid mode doesn't need them) */}
+            {view === 'full' && media.length > 1 && (
               <nav className="detail__pages" aria-label="Images">
                 {media.map((m, i) => (
                   <button key={m._key} type="button" className="pick" aria-current={i === current} onClick={() => goTo(i)}>
@@ -202,11 +221,24 @@ export function ProjectDetail({ project }: { project: Project }) {
                 ))}
               </nav>
             )}
-            {caption && <p className="detail__caption"><Caption text={caption} /></p>}
+            {view === 'full' && caption && <p className="detail__caption"><Caption text={caption} /></p>}
           </div>
       </div>
 
-      {view === 'full' ? (
+      {view === 'full' && carousel && media[current] ? (
+        // carousel: one image at a time; click the left / right half to go back / forward
+        <div className={`detail__media detail__carousel${media[current]._type === 'videoItem' ? ' is-video' : ''}`}>
+          <div className="detail__slide" key={media[current]._key}>
+            <Shot item={media[current]} eager />
+            {media.length > 1 && (
+              <>
+                <button type="button" className="step step--prev" aria-label="Previous image" onClick={() => step(-1)} />
+                <button type="button" className="step step--next" aria-label="Next image" onClick={() => step(1)} />
+              </>
+            )}
+          </div>
+        </div>
+      ) : view === 'full' ? (
         <div className="detail__media">
           {media.map((m, i) => (
             <div
@@ -222,19 +254,27 @@ export function ProjectDetail({ project }: { project: Project }) {
         </div>
       ) : (
         <div className="detail__media detail__grid">
-          {media.map((m, i) =>
-            m._type === 'pdfItem' ? (
-              m.fileUrl && (
-                <a key={m._key} className="detail__tile detail__tile--pdf" href={m.fileUrl} target="_blank" rel="noreferrer">
-                  View PDF{m.caption && <>: <Caption text={m.caption} /></>}
-                </a>
-              )
-            ) : (
-              <button key={m._key} type="button" className="detail__tile" aria-label={`Image ${i + 1}`} onClick={() => setZoom(i)}>
-                <MediaView item={m} video="still" />
-              </button>
-            )
-          )}
+          {media.map((m, i) => (
+            <div key={m._key} className="detail__cell">
+              {m._type === 'pdfItem' ? (
+                m.fileUrl && (
+                  <a className="detail__tile detail__tile--pdf" href={m.fileUrl} target="_blank" rel="noreferrer">
+                    View PDF
+                  </a>
+                )
+              ) : (
+                <button type="button" className="detail__tile" aria-label={m.caption || `Image ${i + 1}`} onClick={() => setZoom(i)}>
+                  <MediaView item={m} video="still" />
+                </button>
+              )}
+              {/* Studio: "Show captions under thumbnails" (e.g. film titles) */}
+              {project.gridCaptions && m.caption && (
+                <p className="detail__tile-caption">
+                  <Caption text={m.caption} />
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
@@ -242,11 +282,17 @@ export function ProjectDetail({ project }: { project: Project }) {
       {zoom !== null && media[zoom] && (
         <div className="zoom" onClick={() => setZoom(null)}>
           <div
-            className="zoom__media"
+            className={`zoom__media${media[zoom]._type === 'videoItem' ? ' is-video' : ''}`}
             style={{ '--ar': aspectOf(media[zoom]) } as React.CSSProperties}
             onClick={(e) => e.stopPropagation()}
           >
             <MediaView key={media[zoom]._key} item={media[zoom]} eager />
+            {media.length > 1 && (
+              <>
+                <button type="button" className="step step--prev" aria-label="Previous image" onClick={() => setZoom((z) => (z === null ? z : (z - 1 + media.length) % media.length))} />
+                <button type="button" className="step step--next" aria-label="Next image" onClick={() => setZoom((z) => (z === null ? z : (z + 1) % media.length))} />
+              </>
+            )}
           </div>
           <button type="button" className="zoom__close" aria-label="Close" onClick={() => setZoom(null)}>
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>

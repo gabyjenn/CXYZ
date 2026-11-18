@@ -43,6 +43,33 @@ export const project = defineType({
       validation: (r) => r.min(1).warning('Add at least one media item'),
     }),
     defineField({
+      name: 'layout',
+      title: 'Image layout (project page)',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Scroll — images one under another', value: 'scroll' },
+          { title: 'Carousel — one image at a time, click to go to the next', value: 'carousel' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'scroll',
+    }),
+    defineField({
+      name: 'startInGrid',
+      title: 'Open in grid view',
+      type: 'boolean',
+      description: 'The project page opens on the thumbnails grid instead of the full images.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'gridCaptions',
+      title: 'Show captions under thumbnails',
+      type: 'boolean',
+      description: 'In grid view, each image’s caption (e.g. a film title) shows under its thumbnail.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'backgroundColor',
       title: 'Project page background (optional)',
       type: 'color',

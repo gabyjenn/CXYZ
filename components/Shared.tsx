@@ -1,6 +1,7 @@
 'use client'
 
 /** Small pieces used on more than one page. */
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { MediaItem } from '@/sanity/types'
@@ -77,6 +78,39 @@ export function Caption({ text }: { text: string }) {
   )
 }
 
+/**
+ * ← / → cursors for stepping through images, made from /public/cursors/arrow.svg
+ * (a left arrow; the right one is the same file mirrored). Sets the CSS variables
+ * --cursor-prev and --cursor-next; the hotspot is the middle of the arrow.
+ */
+let arrowCursorsReady = false
+export function useArrowCursors() {
+  useEffect(() => {
+    if (arrowCursorsReady) return
+    arrowCursorsReady = true
+    fetch('/cursors/arrow.svg')
+      .then((r) => (r.ok ? r.text() : Promise.reject()))
+      .then((svg) => {
+        const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement
+        const vb = (root.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number)
+        const w = parseFloat(root.getAttribute('width') || '') || vb[2] || 32
+        const h = parseFloat(root.getAttribute('height') || '') || vb[3] || 32
+        root.setAttribute('width', String(w))
+        root.setAttribute('height', String(h))
+        const inner = new XMLSerializer().serializeToString(root)
+        const mirrored = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><g transform="matrix(-1 0 0 1 ${w} 0)">${inner}</g></svg>`
+        const hx = Math.round(w / 2)
+        const hy = Math.round(h / 2)
+        const s = document.documentElement.style
+        s.setProperty('--cursor-prev', `url("data:image/svg+xml,${encodeURIComponent(inner)}") ${hx} ${hy}, w-resize`)        
+        s.setProperty('--cursor-next', `url("data:image/svg+xml,${encodeURIComponent(mirrored)}") ${hx} ${hy}, e-resize`)
+      })
+      .catch(() => {
+        arrowCursorsReady = false // no file: plain ← → system cursors (set in the CSS)
+      })
+  }, [])
+}
+
 /** Thin 1px arrow. */
 export function Arrow({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
   const rotate = { down: 0, up: 180, left: 90, right: -90 }[dir]
@@ -92,7 +126,8 @@ export function Arrow({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
  * keeping its proportions, pushed to the right edge.
  * PDFs aren't shown on the page: just a link that opens them in a new tab.
  */
-export function Shot({ item, eager, video }: { item: MediaItem; eager?: boolean; video?: VideoMode }) {  if (item._type === 'pdfItem') {
+export function Shot({ item, eager, video }: { item: MediaItem; eager?: boolean; video?: VideoMode }) {
+  if (item._type === 'pdfItem') {
     return item.fileUrl ? (
       <a className="shot-download" href={item.fileUrl} target="_blank" rel="noreferrer">
         View PDF{item.caption && <>: <Caption text={item.caption} /></>}

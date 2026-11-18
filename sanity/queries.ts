@@ -22,6 +22,9 @@ export const PROJECTS_QUERY = defineQuery(`
     year,
     "slug": slug.current,
     "background": backgroundColor.hex,
+    "layout": layout,
+    startInGrid,
+    gridCaptions,
     worldX,
     worldY,
     // First image in media becomes the thumbnail unless an override is set

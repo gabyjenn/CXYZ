@@ -109,9 +109,9 @@ export function Home({ settings }: { settings: Settings }) {
       </div>
 
       {active && first && (
-        <Link href={`/projects/${active.slug}`} className="hero__media" aria-label={`${active.title}: see more`}>
+        <div className="hero__media">
           <Shot key={first._key} item={first} eager video="ambient" />
-        </Link>
+        </div>
       )}
 
       <button type="button" ref={jumpRef} className="jump" onClick={jump}>
